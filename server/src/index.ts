@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import userRouter from "../routes/UserRoutes";
 import blogRouter from "../routes/BlogRoutes";
-import { verify } from "hono/utils/jwt/jwt";
+
 
 const app = new Hono<{
   Bindings: {
