@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client/edge";
 import { withAccelerate } from "@prisma/extension-accelerate";
 import { Hono } from "hono";
 import { verify } from "hono/jwt";
@@ -14,29 +14,16 @@ const blogRouter = new Hono<{
 }>();
 
 blogRouter.use("/*", async (c, next) => {
-  const jwt = c.req.header("Authorization");
-  if (!jwt) {
-    c.status(401);
-    return c.json({ error: "unauthorized" });
-  }
-
-  const token = jwt.split(" ")[1];
-  try {
-    // Verify the JWT
-    const payload = (await verify(token, c.env.JWT_SECRET)) as { id: string };
-
-    if (!payload || !payload.id) {
-      c.status(401);
-      return c.json({ error: "unauthorized" });
-    }
-
-    // Correctly set userId in the context
-    c.set("userId", payload.id);
-
-    await next(); // Proceed to the next middleware or handler
-  } catch (error) {
-    c.status(401);
-    return c.json({ error: "unauthorized" });
+  const authHeader = c.req.header("authorization") || "";
+  const user = await verify(authHeader, c.env.JWT_SECRET);
+  if (user) {
+    c.set("userId", user.id);
+    await next();
+  } else {
+    c.status(403);
+    return c.json({
+      message: "You aren't logged in",
+    });
   }
 });
 
@@ -44,8 +31,8 @@ blogRouter.post("/", async (c) => {
   const prisma = new PrismaClient({
     datasourceUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate());
-  const userId = c.get("userId");
   try {
+    const userId = c.get("userId");
     const body = await c.req.json();
     const post = await prisma.post.create({
       data: {

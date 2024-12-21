@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import userRouter from "../routes/UserRoutes";
 import blogRouter from "../routes/BlogRoutes";
+import { verify } from "hono/utils/jwt/jwt";
 
 const app = new Hono<{
   Bindings: {
@@ -14,10 +15,6 @@ const app = new Hono<{
 
 app.route("/api/v1/user", userRouter);
 app.route("/api/v1/blog", blogRouter);
-
-app.use("/api/v1/blog/*", async (c, next) => {
-  await next();
-});
 
 app.get("/", (c) => {
   return c.text("Hello Hono!");
