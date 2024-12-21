@@ -1,45 +1,122 @@
+import { Prisma, PrismaClient } from "@prisma/client";
+import { withAccelerate } from "@prisma/extension-accelerate";
 import { Hono } from "hono";
+import { verify } from "hono/jwt";
 
-const blogRouter = new Hono();
+const blogRouter = new Hono<{
+  Bindings: {
+    DATABASE_URL: string;
+    JWT_SECRET: string;
+  };
+  Variables: {
+    userId: string;
+  };
+}>();
 
-blogRouter.get("/:id", (c) => {
-  const id = c.req.param("id");
-  console.log(id);
-  return c.text(`Blog-Id is: ${id}`);
-});
-
-blogRouter.get("/", (c) => {
-  console.log(c.get("userId"));
-  return c.text("Blog Route");
-});
-
-/*
-blogRouter.get("/bulk", async (c) => {
-  // Retrieve a comma-separated list of blog post IDs from query params
-  const ids = c.req.query("ids");
-
-  if (!ids) {
-    return c.json({ error: "No IDs provided" }, 400);
+blogRouter.use("/*", async (c, next) => {
+  const jwt = c.req.header("Authorization");
+  if (!jwt) {
+    c.status(401);
+    return c.json({ error: "unauthorized" });
   }
 
-  const idArray = ids.split(","); // Convert to an array of IDs
-
-  // Assuming you're querying a database (replace with actual database logic)
+  const token = jwt.split(" ")[1];
   try {
-    const blogPosts = await db.blogPosts.findMany({
+    // Verify the JWT
+    const payload = (await verify(token, c.env.JWT_SECRET)) as { id: string };
+
+    if (!payload || !payload.id) {
+      c.status(401);
+      return c.json({ error: "unauthorized" });
+    }
+
+    // Correctly set userId in the context
+    c.set("userId", payload.id);
+
+    await next(); // Proceed to the next middleware or handler
+  } catch (error) {
+    c.status(401);
+    return c.json({ error: "unauthorized" });
+  }
+});
+
+blogRouter.post("/", async (c) => {
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate());
+  const userId = c.get("userId");
+  try {
+    const body = await c.req.json();
+    const post = await prisma.post.create({
+      data: {
+        title: body.title,
+        content: body.content,
+        authorId: userId,
+      },
+    });
+    return c.json({
+      id: post.id,
+    });
+  } catch (error) {
+    console.log(error);
+    return c.json({ message: "Internal Server error" }, 500);
+  }
+});
+
+blogRouter.get("/bulk", async (c) => {
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate());
+  try {
+    const posts = await prisma.post.findMany({});
+    return c.json(posts);
+  } catch (error) {
+    console.log(error);
+    return c.json({ message: "Internal Server error" }, 500);
+  }
+});
+
+blogRouter.get("/get/:id", async (c) => {
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate());
+  try {
+    const id = c.req.param("id");
+    const post = await prisma.post.findUnique({
+      where: { id },
+    });
+
+    return c.json(post);
+  } catch (error) {
+    console.log(error);
+    return c.json({ message: "Internal Server Error" }, 500);
+  }
+});
+
+blogRouter.put("/", async (c) => {
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate());
+  const userId = c.get("userId");
+
+  try {
+    const body = await c.req.json();
+    await prisma.post.update({
       where: {
-        id: { in: idArray }, // Fetch posts where the ID is in the provided array
+        id: body.id,
+        authorId: userId,
+      },
+      data: {
+        title: body.title,
+        content: body.content,
       },
     });
 
-    if (blogPosts.length === 0) {
-      return c.json({ message: "No blog posts found for the given IDs" }, 404);
-    }
-
-    return c.json(blogPosts); // Return the fetched blog posts
+    return c.text("updated post");
   } catch (error) {
-    return c.json({ error: "Failed to fetch blog posts" }, 500);
+    console.log(error);
+    return c.json({ message: "Internal Server Error" });
   }
-}); */
+});
 
 export default blogRouter;

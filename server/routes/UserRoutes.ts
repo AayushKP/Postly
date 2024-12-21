@@ -1,9 +1,8 @@
-import { Hono } from "hono";
 import { PrismaClient } from "@prisma/client/edge";
 import { withAccelerate } from "@prisma/extension-accelerate";
 import { sign } from "hono/jwt";
+import { Hono } from "hono";
 
-// Create the Hono router
 const userRouter = new Hono<{
   Bindings: {
     DATABASE_URL: string;
@@ -13,7 +12,6 @@ const userRouter = new Hono<{
 
 // Signup Route
 userRouter.post("/signup", async (c) => {
-  // Initialize PrismaClient with Accelerate for each request
   const prisma = new PrismaClient({
     datasourceUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate());
@@ -21,7 +19,6 @@ userRouter.post("/signup", async (c) => {
   try {
     const body = await c.req.json();
 
-    // Validate the input
     if (!body.email || !body.password) {
       return c.json({ error: "Email and password are required" }, 400);
     }
@@ -35,23 +32,21 @@ userRouter.post("/signup", async (c) => {
       return c.json({ error: "User already exists" }, 409);
     }
 
-    // Create a new user
+    // Create new user
     const user = await prisma.user.create({
       data: {
         email: body.email,
-        password: body.password, // Hash the password in production
+        password: body.password, // Hash password in production
       },
     });
 
     // Generate a JWT
     const jwt = await sign({ id: user.id }, c.env.JWT_SECRET);
 
-    return c.json({ jwt }, 201); // Return JWT with created status
+    return c.json({ jwt }, 201);
   } catch (error) {
     console.error("Signup Error:", error);
     return c.json({ error: "Internal Server Error" }, 500);
-  } finally {
-    await prisma.$disconnect(); // Clean up Prisma connection
   }
 });
 
@@ -60,16 +55,15 @@ userRouter.post("/signin", async (c) => {
   const prisma = new PrismaClient({
     datasourceUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate());
-
   try {
     const body = await c.req.json();
 
-    // Validate the input
+    // Validate input
     if (!body.email || !body.password) {
       return c.json({ error: "Email and password are required" }, 400);
     }
 
-    // Find the user
+    // Find user
     const user = await prisma.user.findUnique({
       where: { email: body.email },
     });
@@ -86,8 +80,6 @@ userRouter.post("/signin", async (c) => {
   } catch (error) {
     console.error("Signin Error:", error);
     return c.json({ error: "Internal Server Error" }, 500);
-  } finally {
-    await prisma.$disconnect();
   }
 });
 
