@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client/edge";
 import { withAccelerate } from "@prisma/extension-accelerate";
 import { sign } from "hono/jwt";
 import { Hono } from "hono";
+import { signinInput, signupInput } from "@kashyaap-tech/medium-common";
 
 const userRouter = new Hono<{
   Bindings: {
@@ -15,15 +16,14 @@ userRouter.post("/signup", async (c) => {
   const prisma = new PrismaClient({
     datasourceUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate());
-
   try {
     const body = await c.req.json();
-
-    if (!body.email || !body.password) {
-      return c.json({ error: "Email and password are required" }, 400);
+    const { success } = signupInput.safeParse(body);
+    if (!success) {
+      c.status(411);
+      return c.json({ message: "Invalid inputs" });
     }
 
-    // Check if the user already exists
     const existingUser = await prisma.user.findUnique({
       where: { email: body.email },
     });
@@ -57,20 +57,19 @@ userRouter.post("/signin", async (c) => {
   }).$extends(withAccelerate());
   try {
     const body = await c.req.json();
-
-    // Validate input
-    if (!body.email || !body.password) {
-      return c.json({ error: "Email and password are required" }, 400);
+    const { success } = signinInput.safeParse(body);
+    if (!success) {
+      c.status(400);
+      return c.json({ error: "Invalid input" });
     }
 
-    // Find user
     const user = await prisma.user.findUnique({
       where: { email: body.email },
     });
 
     if (!user || user.password !== body.password) {
       // Use secure password comparison in production
-      return c.json({ error: "Invalid email or password" }, 401);
+      return c.json({ error: "Invalid email or password" }, 403);
     }
 
     // Generate a JWT
