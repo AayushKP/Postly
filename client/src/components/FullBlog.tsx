@@ -1,5 +1,5 @@
 import { Blog } from "../hooks";
-import { Appbar } from "./AppBar";
+import { Appbar } from "./Appbar";
 import { Avatar } from "./BlogCard";
 
 export const FullBlog = ({ blog }: { blog: Blog }) => {
