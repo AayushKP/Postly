@@ -1,85 +1,90 @@
+import { Hono } from "hono";
 import { PrismaClient } from "@prisma/client/edge";
 import { withAccelerate } from "@prisma/extension-accelerate";
 import { sign } from "hono/jwt";
-import { Hono } from "hono";
-import { signinInput, signupInput } from "@kashyaap-tech/medium-common";
+import { signupInput, signinInput } from "@kashyaap-tech/medium-common";
 
-const userRouter = new Hono<{
+export const userRouter = new Hono<{
   Bindings: {
     DATABASE_URL: string;
     JWT_SECRET: string;
   };
 }>();
 
-// Signup Route
 userRouter.post("/signup", async (c) => {
+  const body = await c.req.json();
+  const { success } = signupInput.safeParse(body);
+  if (!success) {
+    c.status(411);
+    return c.json({
+      message: "Inputs not correct",
+    });
+  }
   const prisma = new PrismaClient({
     datasourceUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate());
+
   try {
-    const body = await c.req.json();
-    const { success } = signupInput.safeParse(body);
-    if (!success) {
-      c.status(411);
-      return c.json({ message: "Invalid inputs" });
-    }
-
-    const existingUser = await prisma.user.findUnique({
-      where: { email: body.email },
-    });
-
-    if (existingUser) {
-      return c.json({ error: "User already exists" }, 409);
-    }
-
-    // Create new user
     const user = await prisma.user.create({
       data: {
-        email: body.email,
-        password: body.password, // Hash password in production
+        username: body.username,
+        password: body.password,
+        name: body.name,
       },
     });
+    const jwt = await sign(
+      {
+        id: user.id,
+      },
+      c.env.JWT_SECRET
+    );
 
-    // Generate a JWT
-    const jwt = await sign({ id: user.id }, c.env.JWT_SECRET);
-
-    return c.json({ jwt }, 201);
-  } catch (error) {
-    console.error("Signup Error:", error);
-    return c.json({ error: "Internal Server Error" }, 500);
+    return c.text(jwt);
+  } catch (e) {
+    console.log(e);
+    c.status(411);
+    return c.text("Invalid");
   }
 });
 
-// Signin Route
 userRouter.post("/signin", async (c) => {
+  const body = await c.req.json();
+  const { success } = signinInput.safeParse(body);
+  if (!success) {
+    c.status(411);
+    return c.json({
+      message: "Inputs not correct",
+    });
+  }
+
   const prisma = new PrismaClient({
     datasourceUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate());
+
   try {
-    const body = await c.req.json();
-    const { success } = signinInput.safeParse(body);
-    if (!success) {
-      c.status(400);
-      return c.json({ error: "Invalid input" });
-    }
-
-    const user = await prisma.user.findUnique({
-      where: { email: body.email },
+    const user = await prisma.user.findFirst({
+      where: {
+        username: body.username,
+        password: body.password,
+      },
     });
-
-    if (!user || user.password !== body.password) {
-      // Use secure password comparison in production
-      return c.json({ error: "Invalid email or password" }, 403);
+    if (!user) {
+      c.status(403);
+      return c.json({
+        message: "Incorrect creds",
+      });
     }
+    const jwt = await sign(
+      {
+        id: user.id,
+      },
+      c.env.JWT_SECRET
+    );
 
-    // Generate a JWT
-    const jwt = await sign({ id: user.id }, c.env.JWT_SECRET);
-
-    return c.json({ jwt });
-  } catch (error) {
-    console.error("Signin Error:", error);
-    return c.json({ error: "Internal Server Error" }, 500);
+    return c.text(jwt);
+  } catch (e) {
+    console.log(e);
+    c.status(411);
+    return c.text("Invalid");
   }
 });
-
-export default userRouter;

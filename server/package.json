@@ -1,5 +1,5 @@
 {
-  "name": "MEDIUM",
+  "name": "medium-backend",
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy --minify"
