@@ -1,5 +1,5 @@
 {
-  "name": "medium-backend",
+  "name": "postly-backend",
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy --minify"
