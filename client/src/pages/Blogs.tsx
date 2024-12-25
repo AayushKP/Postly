@@ -1,6 +1,7 @@
 import { Appbar } from "../components/Appbar";
 import { BlogCard } from "../components/BlogCard";
 import { BlogSkeleton } from "../components/BlogSkeleton";
+import RightCard from "../components/RightCard";
 import { useBlogs } from "../hooks";
 
 export const Blogs = () => {
@@ -10,7 +11,7 @@ export const Blogs = () => {
     return (
       <div>
         <Appbar />
-        <div className="flex justify-center">
+        <div className="flex justify-evenly">
           <div>
             <BlogSkeleton />
             <BlogSkeleton />
@@ -26,8 +27,8 @@ export const Blogs = () => {
   return (
     <div>
       <Appbar />
-      <div className="flex justify-center">
-        <div>
+      <div className="flex flex-row justify-evenly">
+        <div className="">
           {blogs.map((blog) => (
             <BlogCard
               id={blog.id}
@@ -37,6 +38,9 @@ export const Blogs = () => {
               publishedDate={"2nd Feb 2024"}
             />
           ))}
+        </div>
+        <div className="hidden lg:block">
+          <RightCard />
         </div>
       </div>
     </div>
