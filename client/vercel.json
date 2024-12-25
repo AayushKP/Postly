@@ -1,29 +1,4 @@
 {
-  "version": 2,
-  "routes": [
-    {
-      "src": "/signup",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/signin",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/blog/.*",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/blogs",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/publish",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/.*",
-      "dest": "/index.html"
-    }
-  ]
+  "builds": [{ "src": "package.json", "use": "@vercel/static-build" }],
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }
