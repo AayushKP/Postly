@@ -16,7 +16,7 @@ function App() {
           <Route path="/blogs" element={<Blogs />} />
           <Route path="/publish" element={<Publish />} />
 
-          <Route path="*" element={<Navigate to="/signup" replace />} />
+          <Route path="*" element={<Navigate to="/signin" replace />} />
         </Routes>
       </BrowserRouter>
     </>
