@@ -132,7 +132,6 @@ export const Publish = () => {
               value={currentLine}
               rows={10}
               className="relative block w-full px-2 py-2 text-sm text-gray-800 bg-transparent border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              placeholder=""
               style={{ caretColor: "black" }}
             />
           </div>
