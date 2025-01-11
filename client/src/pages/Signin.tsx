@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { BACKEND_URL } from "../config";
 import axios from "axios";
+import useUserInfoStore from "../store/store";
+import { set } from "mongoose";
 
 export const Signin = () => {
   const [inputs, setInputs] = useState<SigninInput>({
@@ -11,10 +13,11 @@ export const Signin = () => {
   });
   const [isLightMode, setIsLightMode] = useState<boolean>(true);
   const navigate = useNavigate();
+  const { userInfo, setUserInfo } = useUserInfoStore();
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
-    setIsLightMode(savedTheme === "light" || savedTheme === null); // Default to light mode
+    setIsLightMode(savedTheme === "light" || savedTheme === null);
   }, []);
 
   const handleThemeToggle = () => {
@@ -35,7 +38,6 @@ export const Signin = () => {
     }
 
     try {
-      // Make the API request
       const res = await axios.post(
         `${BACKEND_URL}/api/v1/user/signin`,
         {
@@ -47,18 +49,17 @@ export const Signin = () => {
         }
       );
 
+      console.log("Signin Response:", res); // Debugging response
       if (res.status !== 200) {
         alert(
           `Signin failed! ${res.data.message || "Unknown error occurred."}`
         );
-        console.error("Signin Failed", res.data.message);
         return;
       }
-
-      localStorage.setItem("token", res.data.token);
+      setUserInfo(res.data.user); // Store user info in global state
+      localStorage.setItem("token", res.data.token); // Store JWT token in local storage
       navigate("/blogs");
       alert("Signin successful!");
-      console.log("Signin successful!", res.data.message);
     } catch (error: any) {
       // Handle errors
       if (axios.isAxiosError(error)) {
@@ -67,7 +68,6 @@ export const Signin = () => {
       } else {
         alert("An unexpected error occurred. Please try again later.");
       }
-      console.error("Signin Failed", error);
     }
   };
 

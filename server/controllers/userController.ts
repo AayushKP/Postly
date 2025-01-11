@@ -14,7 +14,6 @@ export const signup = async (c: any) => {
     });
   }
 
-  // Initialize Prisma Client inside the controller
   const prisma = new PrismaClient({
     datasourceUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate());
@@ -28,16 +27,16 @@ export const signup = async (c: any) => {
       },
     });
 
-    // Generate JWT for the user
     const jwt = await sign({ id: user.id }, c.env.JWT_SECRET);
 
-    return c.text(jwt);
+    // Send JWT as an HTTP-only, Secure cookie
+    return c.json({ message: "Signup successful", user, token: jwt });
   } catch (e) {
     console.log(e);
     c.status(411);
     return c.text("Error during signup");
   } finally {
-    await prisma.$disconnect(); // Always disconnect the Prisma client
+    await prisma.$disconnect();
   }
 };
 
@@ -54,7 +53,6 @@ export const signin = async (c: any) => {
     );
   }
 
-  // Initialize Prisma Client inside the controller
   const prisma = new PrismaClient({
     datasourceUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate());
@@ -74,16 +72,14 @@ export const signin = async (c: any) => {
       });
     }
 
-    // Generate JWT for the user
     const jwt = await sign({ id: user.id }, c.env.JWT_SECRET);
 
-    return c.text(jwt);
+    // Send JWT as an HTTP-only, Secure cookie
+    return c.json({ message: "Signin successful", user, token: jwt });
   } catch (e) {
     console.log(e);
     c.status(400);
     return c.text("Error during signin");
-  } finally {
-    await prisma.$disconnect(); // Always disconnect the Prisma client
   }
 };
 
@@ -117,6 +113,8 @@ export const getUserInfo = async (c: any) => {
       message: "Error fetching user info",
     });
   } finally {
-    await prisma.$disconnect(); // Always disconnect the Prisma client
+    await prisma.$disconnect();
   }
 };
+
+

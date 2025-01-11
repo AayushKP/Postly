@@ -9,14 +9,14 @@ interface User {
 
 interface UserState {
   userInfo: User | null;
-  setUserInfo: (user: User) => void;
+  setUserInfo: (user: User | null) => void; // Updated type to accept User | null
   clearUserInfo: () => void;
 }
 
 // Create the store
 const useUserInfoStore = create<UserState>((set) => ({
   userInfo: null,
-  setUserInfo: (user: User) => set({ userInfo: user }), // Action to set user info
+  setUserInfo: (user: User | null) => set({ userInfo: user }), // Action to set user info
   clearUserInfo: () => set({ userInfo: null }), // Action to clear user info
 }));
 

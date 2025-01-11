@@ -1,6 +1,9 @@
 import { SignupInput } from "@kashyaap-tech/medium-common";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { BACKEND_URL } from "../config";
+import axios from "axios";
+import useUserInfoStore from "../store/store";
 
 export const Signup = () => {
   const [inputs, setInputs] = useState<SignupInput>({
@@ -8,6 +11,8 @@ export const Signup = () => {
     username: "",
     password: "",
   });
+  const { userInfo, setUserInfo } = useUserInfoStore();
+
   const [isLightMode, setIsLightMode] = useState<boolean>(true);
   const navigate = useNavigate();
 
@@ -24,9 +29,48 @@ export const Signup = () => {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form Submitted", inputs);
+
+    // Validate inputs
+    if (!inputs.username.trim() || !inputs.password.trim()) {
+      alert("Please fill in all the fields.");
+      return;
+    }
+
+    try {
+      const res = await axios.post(
+        `${BACKEND_URL}/api/v1/user/signup`,
+        {
+          name: inputs.name,
+          username: inputs.username,
+          password: inputs.password,
+        },
+        {
+          withCredentials: true,
+        }
+      );
+
+      console.log("Signup Response:", res); // Debugging response
+      if (res.status !== 200) {
+        alert(
+          `Signup failed! ${res.data.message || "Unknown error occurred."}`
+        );
+        return;
+      }
+      setUserInfo(res.data.user);
+      localStorage.setItem("token", res.data.token); // Store JWT token in local storage
+      navigate("/blogs");
+      alert("Signup successful!");
+    } catch (error: any) {
+      // Handle errors
+      if (axios.isAxiosError(error)) {
+        const errorMessage = error.response?.data?.message || error.message;
+        alert(`Signup failed! ${errorMessage}`);
+      } else {
+        alert("An unexpected error occurred. Please try again later.");
+      }
+    }
   };
 
   return (

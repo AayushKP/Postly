@@ -1,5 +1,5 @@
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import axios from "axios";
 import { Signup } from "./pages/Signup";
 import { Signin } from "./pages/Signin";
@@ -7,55 +7,81 @@ import { Blog } from "./pages/Blog";
 import { Blogs } from "./pages/Blogs";
 import { Publish } from "./pages/Publish";
 import Home from "./pages/Home";
+import useUserInfoStore from "./store/store"; // Import the store
+
+// Protected Route Component
+const ProtectedRoute = ({
+  userInfo,
+  children,
+}: {
+  userInfo: any;
+  children: JSX.Element;
+}) => {
+  return userInfo ? children : <Navigate to="/" replace />;
+};
 
 function App() {
-  const [userInfo, setUserInfo] = useState(null);
+  const { userInfo, setUserInfo } = useUserInfoStore(); // Access userInfo from store
 
   useEffect(() => {
-    // Fetch user info from the /user-info endpoint using axios
     const fetchUserInfo = async () => {
       try {
         const response = await axios.get("/user-info", {
-          withCredentials: true, // Allow cookies to be sent with the request
+          withCredentials: true,
         });
 
         if (response.status === 200) {
-          setUserInfo(response.data); // Store user info in state
+          setUserInfo(response.data); // Store the user info
         } else {
-          setUserInfo(null); // If no user info, set to null
+          setUserInfo(null); // No user info, set null
         }
       } catch (error) {
         console.error("Error fetching user info:", error);
-        setUserInfo(null); // If error, assume no user info
+        setUserInfo(null); // Set null on error
       }
     };
 
     fetchUserInfo();
-  }, []);
-
-  if (userInfo === null) {
-    // Redirect to home page if user info is not available
-    return (
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </BrowserRouter>
-    );
-  }
-
+  }, [setUserInfo]);
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/home" element={<Home />} />
+        {/* Public Routes */}
+        <Route path="/" element={<Home />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/signin" element={<Signin />} />
-        <Route path="/blog/:id" element={<Blog />} />
-        <Route path="/blogs" element={<Blogs />} />
-        <Route path="/publish" element={<Publish />} />
 
-        <Route path="*" element={<Navigate to="/blogs" replace />} />
+        {/* Protected Routes */}
+        <Route
+          path="/blogs"
+          element={
+            <ProtectedRoute userInfo={userInfo}>
+              <Blogs />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/blog/:id"
+          element={
+            <ProtectedRoute userInfo={userInfo}>
+              <Blog />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/publish"
+          element={
+            <ProtectedRoute userInfo={userInfo}>
+              <Publish />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Fallback Routes */}
+        <Route
+          path="*"
+          element={<Navigate to={userInfo ? "/blogs" : "/"} replace />}
+        />
       </Routes>
     </BrowserRouter>
   );
