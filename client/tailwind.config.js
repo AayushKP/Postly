@@ -6,6 +6,7 @@ export default {
       fontFamily: {
         ysabeau: ['"Ysabeau SC"', "sans-serif"],
         poppins: ["Poppins", "sans-serif"],
+        quicksand: ["Quicksand", "sans-serif"],
       },
     },
   },

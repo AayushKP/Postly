@@ -2,7 +2,6 @@ import { Hono } from "hono";
 import { userRouter } from "../routes/UserRoutes";
 import { blogRouter } from "../routes/BlogRoutes";
 import { cors } from "hono/cors";
-import { aiRouter } from "../routes/aiRoutes";
 
 const app = new Hono<{
   Bindings: {
@@ -14,10 +13,15 @@ const app = new Hono<{
   };
 }>();
 
-app.use("*", cors());
+app.use(
+  "*",
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 app.route("/api/v1/user", userRouter);
 app.route("/api/v1/blog", blogRouter);
-app.route("/api/v1/suggest", aiRouter);
 
 app.get("/", (c) => {
   return c.text("Hello Hono!");
