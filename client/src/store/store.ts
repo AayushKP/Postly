@@ -1,23 +1,15 @@
 import { create } from "zustand";
 
-// Define a proper type for userInfo
-interface User {
-  username: string;
-  email: string;
-  profileImg: string;
-}
-
-interface UserState {
-  userInfo: User | null;
-  setUserInfo: (user: User | null) => void; // Updated type to accept User | null
+interface UserInfoState {
+  userInfo: any | null;
+  setUserInfo: (userInfo: any) => void;
   clearUserInfo: () => void;
 }
 
-// Create the store
-const useUserInfoStore = create<UserState>((set) => ({
+const useUserInfoStore = create<UserInfoState>((set) => ({
   userInfo: null,
-  setUserInfo: (user: User | null) => set({ userInfo: user }), // Action to set user info
-  clearUserInfo: () => set({ userInfo: null }), // Action to clear user info
+  setUserInfo: (userInfo) => set({ userInfo }),
+  clearUserInfo: () => set({ userInfo: null }),
 }));
 
 export default useUserInfoStore;

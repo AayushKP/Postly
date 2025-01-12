@@ -1,5 +1,4 @@
 import { Hono } from "hono";
-import { verify } from "hono/jwt";
 import * as blogController from "../controllers/blogController";
 import { authMiddleware } from "../middleware/authMiddleware";
 
@@ -9,7 +8,6 @@ interface Bindings {
   JWT_SECRET: string;
 }
 
-// Define custom context with the userId stored in context
 interface Variables {
   userId: string;
 }
@@ -24,7 +22,8 @@ export const blogRouter = new Hono<{
 blogRouter.use("/*", authMiddleware);
 
 // Define routes with controller functions
-blogRouter.post("/", blogController.createBlog);
-blogRouter.put("/", blogController.updateBlog);
-blogRouter.get("/bulk", blogController.getAllBlogs);
-blogRouter.get("/:id", blogController.getBlogById);
+blogRouter.post("/", blogController.createBlog); // Route to create a blog post
+blogRouter.put("/", blogController.updateBlog); // Route to update a blog post
+blogRouter.get("/bulk", blogController.getAllBlogs); // Route to fetch all blog posts
+blogRouter.get("/:id", blogController.getBlogById); // Route to fetch a single blog post by ID
+blogRouter.post("/bookmark", blogController.bookmarkBlog); // Route to bookmark/unbookmark a blog post

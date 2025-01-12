@@ -83,11 +83,9 @@ export const signin = async (c: any) => {
   }
 };
 
-// Controller for fetching user information by ID
 export const getUserInfo = async (c: any) => {
+  console.log(c.req.userId);
   const userId = c.req.userId;
-
-  // Initialize Prisma Client inside the controller
   const prisma = new PrismaClient({
     datasourceUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate());

@@ -1,89 +1,152 @@
-import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Route, Routes, Navigate, useNavigate } from "react-router-dom";
 import axios from "axios";
+import useUserInfoStore from "./store/store";
 import { Signup } from "./pages/Signup";
 import { Signin } from "./pages/Signin";
 import { Blog } from "./pages/Blog";
 import { Blogs } from "./pages/Blogs";
 import { Publish } from "./pages/Publish";
 import Home from "./pages/Home";
-import useUserInfoStore from "./store/store"; // Import the store
+import { BACKEND_URL } from "./config";
+import { Spinner } from "./components/Spinner"; // Spinner with Tailwind CSS
 
-// Protected Route Component
-const ProtectedRoute = ({
+// Higher-Order Component for Private Routes
+const PrivateRoute = ({
   userInfo,
   children,
 }: {
   userInfo: any;
   children: JSX.Element;
 }) => {
-  return userInfo ? children : <Navigate to="/" replace />;
+  return userInfo ? children : <Navigate to="/signin" replace />;
+};
+
+// Higher-Order Component for Auth Routes
+const AuthRoute = ({
+  userInfo,
+  children,
+}: {
+  userInfo: any;
+  children: JSX.Element;
+}) => {
+  return userInfo ? <Navigate to="/blogs" replace /> : children;
 };
 
 function App() {
-  const { userInfo, setUserInfo } = useUserInfoStore(); // Access userInfo from store
+  const { userInfo, setUserInfo, clearUserInfo } = useUserInfoStore();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      clearUserInfo();
+      setLoading(false);
+      return;
+    }
+
     const fetchUserInfo = async () => {
       try {
-        const response = await axios.get("/user-info", {
-          withCredentials: true,
-        });
+        const response = await axios.get(
+          `${BACKEND_URL}/api/v1/user/user-info`,
+          {
+            headers: {
+              authorization: `${token}`,
+            },
+          }
+        );
 
         if (response.status === 200) {
-          setUserInfo(response.data); // Store the user info
+          setUserInfo(response.data);
+          localStorage.setItem("userInfo", JSON.stringify(response.data));
         } else {
-          setUserInfo(null); // No user info, set null
+          clearUserInfo();
         }
       } catch (error) {
-        console.error("Error fetching user info:", error);
-        setUserInfo(null); // Set null on error
+        console.error("Error restoring session:", error);
+        clearUserInfo();
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchUserInfo();
-  }, [setUserInfo]);
+  }, [setUserInfo, clearUserInfo]);
+
+  useEffect(() => {
+    if (userInfo) {
+      localStorage.setItem("userInfo", JSON.stringify(userInfo));
+    } else {
+      localStorage.removeItem("userInfo");
+    }
+  }, [userInfo]);
+
+  if (loading) {
+    return <Spinner />;
+  }
+
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<Home />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/signin" element={<Signin />} />
+    <Routes>
+      <Route path="/" element={<Home />} />
 
-        {/* Protected Routes */}
-        <Route
-          path="/blogs"
-          element={
-            <ProtectedRoute userInfo={userInfo}>
-              <Blogs />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/blog/:id"
-          element={
-            <ProtectedRoute userInfo={userInfo}>
-              <Blog />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/publish"
-          element={
-            <ProtectedRoute userInfo={userInfo}>
-              <Publish />
-            </ProtectedRoute>
-          }
-        />
+      {/* Auth Routes */}
+      <Route
+        path="/signup"
+        element={
+          <AuthRoute userInfo={userInfo}>
+            <Signup />
+          </AuthRoute>
+        }
+      />
+      <Route
+        path="/signin"
+        element={
+          <AuthRoute userInfo={userInfo}>
+            <Signin />
+          </AuthRoute>
+        }
+      />
 
-        {/* Fallback Routes */}
-        <Route
-          path="*"
-          element={<Navigate to={userInfo ? "/blogs" : "/"} replace />}
-        />
-      </Routes>
-    </BrowserRouter>
+      {/* Private Routes */}
+      <Route
+        path="/blogs"
+        element={
+          <PrivateRoute userInfo={userInfo}>
+            <Blogs />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/blog/:id"
+        element={
+          <PrivateRoute userInfo={userInfo}>
+            <Blog />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/publish"
+        element={
+          <PrivateRoute userInfo={userInfo}>
+            <Publish />
+          </PrivateRoute>
+        }
+      />
+
+      {/* Default Fallback Routes */}
+      <Route
+        path="*"
+        element={
+          userInfo ? (
+            <Navigate to="/blogs" replace />
+          ) : (
+            <Navigate to="/signin" replace />
+          )
+        }
+      />
+    </Routes>
   );
 }
 
