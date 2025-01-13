@@ -84,7 +84,6 @@ export const signin = async (c: any) => {
 };
 
 export const getUserInfo = async (c: any) => {
-  console.log(c.req.userId);
   const userId = c.req.userId;
   const prisma = new PrismaClient({
     datasourceUrl: c.env.DATABASE_URL,
@@ -93,7 +92,33 @@ export const getUserInfo = async (c: any) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true, username: true, name: true },
+      select: {
+        id: true,
+        username: true,
+        name: true,
+        bio: true,
+        blogs: {
+          select: {
+            id: true,
+            title: true,
+            content: true,
+            createdAt: true,
+            published: true,
+          },
+        },
+        bookmarkedBlogs: {
+          select: {
+            blog: {
+              select: {
+                id: true,
+                title: true,
+                content: true,
+                createdAt: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!user) {
@@ -103,6 +128,7 @@ export const getUserInfo = async (c: any) => {
       });
     }
 
+    // If `bio` is missing, it will naturally be `null`
     return c.json(user);
   } catch (e) {
     console.log(e);
@@ -114,5 +140,6 @@ export const getUserInfo = async (c: any) => {
     await prisma.$disconnect();
   }
 };
+
 
 

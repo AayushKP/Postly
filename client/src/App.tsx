@@ -10,6 +10,7 @@ import { Publish } from "./pages/Publish";
 import Home from "./pages/Home";
 import { BACKEND_URL } from "./config";
 import { Spinner } from "./components/Spinner"; // Spinner with Tailwind CSS
+import { ProfilePage } from "./pages/Profile";
 
 // Higher-Order Component for Private Routes
 const PrivateRoute = ({
@@ -61,6 +62,7 @@ function App() {
         if (response.status === 200) {
           setUserInfo(response.data);
           localStorage.setItem("userInfo", JSON.stringify(response.data));
+          console.log(userInfo);
         } else {
           clearUserInfo();
         }
@@ -115,6 +117,14 @@ function App() {
         element={
           <PrivateRoute userInfo={userInfo}>
             <Blogs />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <PrivateRoute userInfo={userInfo}>
+            <ProfilePage />
           </PrivateRoute>
         }
       />

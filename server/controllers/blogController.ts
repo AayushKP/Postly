@@ -171,57 +171,169 @@ export const getBlogById = async (c: any) => {
 };
 
 // Controller for bookmarking a blog
-export const bookmarkBlog = async (c: any) => {
-  const { blogId } = await c.req.json(); // Expect blogId in the request body
-  const userId = c.req.userId; // Assume userId is available in the request context
+export const getPopularBlogs = async (c: any) => {
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate());
 
-  // Initialize Prisma Client inside the controller function
+  try {
+    const popularBlogs = await prisma.blog.findMany({
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        createdAt: true,
+        image: true,
+        author: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+
+    const blogsWithBookmarkCounts = await Promise.all(
+      popularBlogs.map(async (blog) => {
+        const bookmarkCount = await prisma.bookmark.count({
+          where: {
+            blogId: blog.id,
+          },
+        });
+
+        return {
+          ...blog,
+          bookmarkCount,
+        };
+      })
+    );
+
+    // Sort blogs by bookmark count in descending order
+    const sortedBlogs = blogsWithBookmarkCounts.sort(
+      (a, b) => b.bookmarkCount - a.bookmarkCount
+    );
+
+    const topBlogs = sortedBlogs.slice(0, 3);
+
+    return c.json({
+      popularBlogs: topBlogs,
+    });
+  } catch (error) {
+    c.status(500);
+    return c.json({
+      message: "Error fetching popular blogs",
+    });
+  } finally {
+    await prisma.$disconnect();
+  }
+};
+
+// Controller for bookmarking/unbookmarking a blog post
+export const bookmarkBlog = async (c: any) => {
+  const { blogId } = await c.req.json(); // Assume blogId is provided in the request body
+  const userId = c.req.userId; // User ID from request context
+  
+  // Initialize Prisma Client
   const prisma = new PrismaClient({
     datasourceUrl: c.env.DATABASE_URL, // Access environment variable for DB URL
   }).$extends(withAccelerate());
 
   try {
-    // Check if the blog is already bookmarked
+    // Check if the blog is already bookmarked by the user
     const existingBookmark = await prisma.bookmark.findFirst({
       where: {
-        blogId: Number(blogId),
-        userId: Number(userId),
+        userId: userId,
+        blogId: blogId,
       },
     });
 
     if (existingBookmark) {
-      // If already bookmarked, remove it
+      // If already bookmarked, remove the bookmark
       await prisma.bookmark.delete({
         where: {
           userId_blogId: {
-            userId: Number(userId),
-            blogId: Number(blogId),
+            // Use the composite key
+            userId: existingBookmark.userId,
+            blogId: existingBookmark.blogId,
           },
         },
       });
-
       return c.json({
-        message: "Bookmark removed",
+        message: "Blog removed from bookmarks",
       });
     } else {
-      // Otherwise, add a new bookmark
+      // If not bookmarked, add the bookmark
       await prisma.bookmark.create({
         data: {
-          userId: Number(userId),
-          blogId: Number(blogId),
+          userId: userId,
+          blogId: blogId,
         },
       });
-
       return c.json({
-        message: "Blog bookmarked",
+        message: "Blog bookmarked successfully",
       });
     }
   } catch (error) {
     c.status(500);
     return c.json({
-      message: "Error bookmarking the blog",
+      message: "Error handling bookmark",
     });
   } finally {
-    await prisma.$disconnect(); // Disconnect Prisma Client after request is done
+    await prisma.$disconnect(); // Disconnect Prisma Client
   }
 };
+
+// Controller for fetching a user's bookmarked blogs
+export const getBookmarkedBlogs = async (c: any) => {
+  const userId = c.req.userId; // Get userId from request context
+
+  // Initialize Prisma Client
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL, // Access environment variable for DB URL
+  }).$extends(withAccelerate());
+
+  try {
+    // Find all blogs bookmarked by the user
+    const bookmarkedBlogs = await prisma.bookmark.findMany({
+      where: {
+        userId: userId,
+      },
+      include: {
+        blog: {
+          select: {
+            id: true,
+            title: true,
+            content: true,
+            image: true,
+            createdAt: true,
+            author: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!bookmarkedBlogs.length) {
+      return c.json({
+        message: "No bookmarked blogs found",
+      });
+    }
+
+    // Map through the bookmarked blogs and return the blog data
+    const blogs = bookmarkedBlogs.map((bookmark) => bookmark.blog);
+
+    return c.json({
+      bookmarkedBlogs: blogs,
+    });
+  } catch (error) {
+    c.status(500);
+    return c.json({
+      message: "Error fetching bookmarked blogs",
+    });
+  } finally {
+    await prisma.$disconnect(); // Disconnect Prisma Client
+  }
+};
+
