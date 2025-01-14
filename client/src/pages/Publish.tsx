@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { Editor } from "@tinymce/tinymce-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { BACKEND_URL } from "../config";
 import { FaBackward, FaTrash, FaStar, FaSyncAlt } from "react-icons/fa";
 import { ChatMistralAI } from "@langchain/mistralai";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
+import useUserInfoStore from "../store/store";
 
 export const Publish = () => {
   const [title, setTitle] = useState("");
@@ -16,6 +18,7 @@ export const Publish = () => {
   const [aiTitle, setAiTitle] = useState("");
   const [aiContent, setAiContent] = useState("");
   const navigate = useNavigate();
+  const { userInfo, setUserInfo } = useUserInfoStore();
 
   const apiKey = import.meta.env.VITE_MISTRAL_API_KEY;
   const model = new ChatMistralAI({
@@ -52,7 +55,7 @@ export const Publish = () => {
 
   const handlePublish = async () => {
     if (!imageUrl) {
-      console.error("No image URL available. Please upload an image.");
+      alert("No image URL available. Please upload an image.");
       return;
     }
 
@@ -63,6 +66,10 @@ export const Publish = () => {
         { title, content, image: imageUrl },
         { headers: { authorization: localStorage.getItem("token") || "" } }
       );
+      setUserInfo((prevUserInfo) => ({
+        ...prevUserInfo,
+        blogs: [...prevUserInfo.blogs, response.data],
+      }));
       navigate(`/blog/${response.data.id}`);
     } catch (error) {
       console.error("Error publishing the blog:", error);
@@ -188,31 +195,30 @@ export const Publish = () => {
             </button>
           </div>
 
-          <Editor
-            apiKey={import.meta.env.VITE_TINYMCE_API_KEY}
+          <ReactQuill
             value={content}
-            onEditorChange={(newContent, editor) => {
-              // Get plain text content instead of HTML
-              const plainTextContent = editor.getContent({ format: "text" });
-              setContent(plainTextContent); // Set the plain text content
-            }}
-            init={{
-              height: 450,
-              menubar: false,
-              content_style: `
-      body { font-family: 'Quicksand', sans-serif; }
-      h1, h2, h3, h4, h5, h6 { font-weight: bold; }
-      p, ul, ol { font-family: 'Quicksand', sans-serif; }
-      ul, ol { margin-left: 20px; }
-    `,
-              plugins: [
-                "advlist autolink lists link image charmap print preview anchor",
-                "searchreplace visualblocks code fullscreen",
-                "insertdatetime media table paste code help wordcount",
+            onChange={(newContent) => setContent(newContent)}
+            modules={{
+              toolbar: [
+                [{ header: "1" }, { header: "2" }, { font: [] }],
+                [{ list: "ordered" }, { list: "bullet" }],
+                ["bold", "italic", "underline"],
+                ["link", "image"],
+                ["clean"],
               ],
-              toolbar:
-                "undo redo | formatselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | link image media table | emoticons charmap | removeformat",
             }}
+            formats={[
+              "header",
+              "font",
+              "bold",
+              "italic",
+              "underline",
+              "list",
+              "bullet",
+              "link",
+              "image",
+            ]}
+            style={{ height: "450px", marginBottom: "6px" }}
           />
 
           {!imageUrl && (

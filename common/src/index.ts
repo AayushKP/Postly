@@ -6,7 +6,6 @@ export const signupInput = z.object({
   name: z.string().optional(),
 });
 
-//type inference in zod
 export type SignupInput = z.infer<typeof signupInput>;
 
 export const signinInput = z.object({
@@ -15,7 +14,6 @@ export const signinInput = z.object({
   name: z.string().optional(),
 });
 
-//type inference in zod
 export type SigninInput = z.infer<typeof signupInput>;
 
 export const createPostInput = z.object({

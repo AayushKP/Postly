@@ -20,7 +20,7 @@ export const FullBlog = ({ blog }: { blog: Blog }) => {
             `${BACKEND_URL}/api/v1/blog/blogs/author`,
             {
               headers: {
-                authorization: `${localStorage.getItem("token")}`, // Send the token in the Authorization header
+                authorization: `${localStorage.getItem("token")}`,
               },
               params: { authorId },
             }
@@ -52,7 +52,6 @@ export const FullBlog = ({ blog }: { blog: Blog }) => {
   return (
     <div className="overflow-hidden">
       <Appbar />
-      {/* Back Button */}
       <button
         onClick={handleBackClick}
         className="absolute top-24 lg:top-5 left-1 lg:left-8 text-xs p-1 bg-yellow-500 text-white lg:p-2 rounded-full shadow-md hover:bg-yellow-400"
@@ -74,7 +73,6 @@ export const FullBlog = ({ blog }: { blog: Blog }) => {
         </svg>
       </button>
 
-      {/* Header Image Section */}
       {blog.image && (
         <div className="relative w-full h-96">
           <img
@@ -89,7 +87,6 @@ export const FullBlog = ({ blog }: { blog: Blog }) => {
       <div className="flex justify-center">
         <div className="grid grid-cols-12 px-10 w-full max-w-screen-xl pt-12">
           <div className="col-span-12 lg:col-span-8">
-            {/* Title and Date */}
             <div className="text-5xl font-extrabold">{blog.title}</div>
             <div className="text-slate-500 pt-2">{formattedDate}</div>
             <div className="p-4">
@@ -101,7 +98,6 @@ export const FullBlog = ({ blog }: { blog: Blog }) => {
           </div>
 
           <div className="col-span-12 lg:col-span-4 pt-8 lg:pt-0">
-            {/* More from Author */}
             <div className="text-slate-600 text-lg font-semibold">
               More from Author
             </div>

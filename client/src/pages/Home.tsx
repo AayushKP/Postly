@@ -1,22 +1,20 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function Home() {
   const [isLightMode, setIsLightMode] = useState<boolean>(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const navigate = useNavigate();
 
-  // Check localStorage for stored theme preference
   useEffect(() => {
     const savedTheme = localStorage.getItem("isWhite") === "true";
     setIsLightMode(savedTheme);
   }, []);
 
-  // Toggle theme and save to localStorage
   const toggleTheme = (): void => {
     setIsLightMode((prevMode) => {
       const newMode = !prevMode;
-      localStorage.setItem("isWhite", newMode.toString()); // Save the theme to localStorage
+      localStorage.setItem("isWhite", newMode.toString());
       return newMode;
     });
   };
@@ -32,7 +30,6 @@ function Home() {
       } font-ysabeau`}
     >
       <div className="px-10 lg:px-32">
-        {/* Navbar */}
         <nav className="py-6 flex justify-between items-center">
           <h1
             className={`text-4xl font-bold ${
@@ -97,12 +94,9 @@ function Home() {
               </a>
             </li>
             <li>
-              <button
-                onClick={() => alert("Login clicked")} // Handle the login action here
-                className="text-xl hover:opacity-80"
-              >
-                Login
-              </button>
+              <Link to="/signin">
+                <button className="text-xl hover:opacity-80">Login</button>
+              </Link>
             </li>
 
             <li>
@@ -123,7 +117,6 @@ function Home() {
           </ul>
         </div>
 
-        {/* Hero Section */}
         <section className="flex flex-col items-center gap-10 justify-center h-3/4 text-center py-12 md:py-24">
           <div>
             <h2 className="text-5xl font-bold mb-4">
@@ -134,7 +127,7 @@ function Home() {
               AI!
             </p>
             <a
-              href="#create"
+              href="/signin"
               className={`px-6 py-3 rounded-lg text-xl transition mb-3 ${
                 isLightMode
                   ? "bg-yellow-500 text-gray-900 hover:bg-yellow-600"
@@ -145,7 +138,6 @@ function Home() {
             </a>
           </div>
 
-          {/* New Age Blogging Content */}
           <div id="new-age-blogging" className="text-center">
             <h3
               className={`text-3xl font-bold mb-3 ${
@@ -204,7 +196,6 @@ function Home() {
           </div>
         </section>
 
-        {/* Call to Action */}
         <section id="create" className="py-24 text-center">
           <h3
             className={`text-4xl font-bold mb-6 ${
@@ -218,7 +209,7 @@ function Home() {
             started!
           </p>
           <a
-            href="#blog"
+            href="/signup"
             className={`px-8 py-4 rounded-lg text-xl transition ${
               isLightMode
                 ? "bg-yellow-500 text-gray-900 hover:bg-yellow-600"

@@ -31,7 +31,6 @@ export const Signin = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate inputs
     if (!inputs.username.trim() || !inputs.password.trim()) {
       alert("Please fill in both Username and Password.");
       return;
@@ -41,22 +40,22 @@ export const Signin = () => {
       const res = await axios.post(
         `${BACKEND_URL}/api/v1/user/signin`,
         {
-          username: inputs.username, // Send directly as object
+          username: inputs.username,
           password: inputs.password,
         },
         {
           withCredentials: true,
         }
       );
-      console.log("Signin Response:", res); // Debugging response
+      console.log("Signin Response:", res);
       if (res.status !== 200) {
         alert(
           `Signin failed! ${res.data.message || "Unknown error occurred."}`
         );
         return;
       }
-      setUserInfo(res.data.user); // Store user info in global state
-      localStorage.setItem("token", res.data.token); // Store JWT token in local storage
+      setUserInfo(res.data.user);
+      localStorage.setItem("token", res.data.token);
       navigate("/blogs");
       alert("Signin successful!");
     } catch (error: any) {
@@ -98,7 +97,6 @@ export const Signin = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Username Field */}
           <div>
             <label
               htmlFor="username"

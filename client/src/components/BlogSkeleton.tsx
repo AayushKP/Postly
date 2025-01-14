@@ -7,13 +7,11 @@ export const BlogSkeleton = () => {
       className="animate-pulse space-y-6 mt-8 mx-auto w-full max-w-screen-sm bg-white rounded-xl shadow-md"
     >
       <div className="p-6 flex flex-col sm:flex-row justify-between gap-3 sm:w-2/3 rounded-t-xl sm:rounded-l-xl sm:rounded-tr-none">
-        {/* Left Section - Skeleton for text */}
         <div className="flex-1 space-y-2">
           <div className="h-4 bg-gray-200 rounded-full w-48 mb-4"></div>
           <div className="h-2 bg-gray-200 rounded-full mb-2.5"></div>
           <div className="h-2 bg-gray-200 rounded-full mb-2.5"></div>
         </div>
-        {/* Right Section - Skeleton for Avatar */}
         <div className="flex">
           <Circle />
           <div className="pl-2 font-thin text-slate-500 text-sm flex flex-col">
@@ -27,15 +25,12 @@ export const BlogSkeleton = () => {
         <div className="h-2 bg-gray-200 rounded-full mb-2.5"></div>
       </div>
 
-      {/* Footer Section - Skeleton for actions */}
       <div className="px-6 py-4 flex items-center justify-between bg-white rounded-b-xl">
-        {/* Share Button Skeleton */}
         <div className="flex items-center text-gray-600 space-x-2">
           <div className="w-6 h-6 bg-gray-300 rounded-md animate-pulse"></div>
           <div className="w-12 h-4 bg-gray-300 rounded-md animate-pulse"></div>
         </div>
 
-        {/* Bookmark Button Skeleton */}
         <div className="flex items-center text-gray-600 space-x-2">
           <div className="w-6 h-6 bg-gray-300 rounded-md animate-pulse"></div>
           <div className="w-12 h-4 bg-gray-300 rounded-md animate-pulse"></div>

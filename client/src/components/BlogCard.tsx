@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { FiShare2 } from "react-icons/fi"; // Feather Icons
-import { BiBookmark, BiBookmarkHeart } from "react-icons/bi"; // Bootstrap Icons
+import { FiShare2 } from "react-icons/fi";
+import { BiBookmark, BiBookmarkHeart } from "react-icons/bi";
 import axios from "axios";
 import { BACKEND_URL } from "../config";
-import useUserInfoStore from "../store/store"; // Import Zustand store
+import useUserInfoStore from "../store/store";
 
 interface BlogCardProps {
   authorName: string;
@@ -12,7 +12,7 @@ interface BlogCardProps {
   content: string;
   publishedDate: string;
   id: number;
-  image?: string; // Optional blog image
+  image?: string;
 }
 
 export const BlogCard = ({
@@ -26,7 +26,6 @@ export const BlogCard = ({
   const { userInfo, setUserInfo } = useUserInfoStore();
   const [isBookmarked, setIsBookmarked] = useState(false);
 
-  // Check if the blog is bookmarked on mount or userInfo change
   useEffect(() => {
     if (userInfo && userInfo.bookmarkedBlogs) {
       const isAlreadyBookmarked = userInfo.bookmarkedBlogs.some(
@@ -39,7 +38,7 @@ export const BlogCard = ({
   const handleBookmark = async () => {
     try {
       const response = await axios.post(
-        `${BACKEND_URL}/api/v1/blog/bookmark`,
+        `${BACKEND_URL}/api/v1/blog/blogs/bookmark`,
         { blogId: id },
         {
           headers: {
@@ -48,17 +47,15 @@ export const BlogCard = ({
         }
       );
 
+      let updatedBookmarkedBlogs = [...(userInfo?.bookmarkedBlogs || [])];
+
       if (response.data.message === "Blog removed from bookmarks") {
-        // Update state after unbookmarking
+        updatedBookmarkedBlogs = updatedBookmarkedBlogs.filter(
+          (bookmark) => bookmark.blog.id !== id
+        );
         setIsBookmarked(false);
-        const updatedBookmarkedBlogs =
-          userInfo?.bookmarkedBlogs.filter(
-            (bookmark) => bookmark.blog.id !== id
-          ) || [];
-        updateUserInfo(updatedBookmarkedBlogs);
-      } else if (response.data.message === "Blog added to bookmarks") {
-        // Update state after bookmarking
-        setIsBookmarked(true);
+        alert("Blog removed from bookmarks!");
+      } else if (response.data.message === "Blog bookmarked successfully") {
         const newBlog = {
           blog: {
             id,
@@ -70,12 +67,13 @@ export const BlogCard = ({
             author: { name: authorName },
           },
         };
-        const updatedBookmarkedBlogs = [
-          ...(userInfo?.bookmarkedBlogs || []),
-          newBlog,
-        ];
-        updateUserInfo(updatedBookmarkedBlogs);
+        updatedBookmarkedBlogs.push(newBlog);
+        setIsBookmarked(true);
+        alert("Blog added to bookmarks!");
       }
+
+      // Update Zustand store and localStorage
+      updateUserInfo(updatedBookmarkedBlogs);
     } catch (error) {
       console.error("Error bookmarking/unbookmarking:", error);
       alert("Something went wrong. Please try again.");
@@ -87,6 +85,7 @@ export const BlogCard = ({
       ...userInfo,
       bookmarkedBlogs: updatedBookmarkedBlogs,
     };
+    //@ts-ignore
     setUserInfo(updatedUserInfo);
     localStorage.setItem("userInfo", JSON.stringify(updatedUserInfo));
   };
@@ -104,7 +103,6 @@ export const BlogCard = ({
     }
   };
 
-  // Truncate the content for preview
   const truncatedContent =
     content.length > 100 ? content.slice(0, 30) + "..." : content;
 

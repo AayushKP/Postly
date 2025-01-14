@@ -3,7 +3,6 @@ import { withAccelerate } from "@prisma/extension-accelerate";
 import { sign } from "hono/jwt";
 import { signupInput, signinInput } from "@kashyaap-tech/medium-common";
 
-// Controller for handling user signup
 export const signup = async (c: any) => {
   const body = await c.req.json();
   const { success } = signupInput.safeParse(body);
@@ -29,7 +28,6 @@ export const signup = async (c: any) => {
 
     const jwt = await sign({ id: user.id }, c.env.JWT_SECRET);
 
-    // Send JWT as an HTTP-only, Secure cookie
     return c.json({ message: "Signup successful", user, token: jwt });
   } catch (e) {
     console.log(e);
@@ -40,7 +38,6 @@ export const signup = async (c: any) => {
   }
 };
 
-// Controller for handling user signin
 export const signin = async (c: any) => {
   const body = await c.req.json();
   const { success } = signinInput.safeParse(body);
@@ -141,39 +138,31 @@ export const getUserInfo = async (c: any) => {
   }
 };
 
-
-
-// Controller to update user info (name, bio, and password)
 export const updateUser = async (c: any) => {
-  const userId = c.req.userId; // Ensure userId is passed or authenticated through JWT
+  const userId = c.req.userId;
   const body = await c.req.json();
 
   const prisma = new PrismaClient({
     datasourceUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate());
 
-  const { name, bio, password } = body; // Get new values for name, bio, and password
+  const { name, bio, password } = body;
 
-  // Prepare data for update
   const updatedData: any = {};
 
-  // If `name` is provided, update it
   if (name) {
     updatedData.name = name;
   }
 
-  // If `bio` is provided (could be null), update it
   if (bio !== undefined) {
     updatedData.bio = bio;
   }
 
-  // If `password` is provided, update it (but only if it's not null)
   if (password !== undefined && password !== null) {
     updatedData.password = password;
   }
 
   try {
-    // Check if user exists
     const user = await prisma.user.findUnique({
       where: { id: userId },
     });
@@ -185,7 +174,6 @@ export const updateUser = async (c: any) => {
       });
     }
 
-    // Update user in the database with the provided data
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: updatedData,

@@ -1,16 +1,15 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaBookmark, FaFileAlt, FaTrashAlt } from "react-icons/fa"; // Added FaTrashAlt
+import { FaBookmark, FaFileAlt, FaTrashAlt } from "react-icons/fa";
 import useUserInfoStore from "../store/store";
 import axios from "axios";
 import { BACKEND_URL } from "../config";
 
 export const LibraryPage = () => {
-  const { userInfo, setUserInfo } = useUserInfoStore(); // Ensure setUserInfo is available in your store
+  const { userInfo, setUserInfo } = useUserInfoStore();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"posts" | "bookmarks">("posts");
 
-  // Get user blogs and bookmarked blogs from the state
   const [userBlogs, setUserBlogs] = useState(userInfo?.blogs || []);
   const [bookmarkedBlogs, setBookmarkedBlogs] = useState(
     userInfo?.bookmarkedBlogs || []
@@ -31,7 +30,6 @@ export const LibraryPage = () => {
       const token = localStorage.getItem("token");
       const backendUrl = `${BACKEND_URL}/api/v1/blog/delete/${id}`;
 
-      // Make the delete request with the token in the Authorization header
       await axios.delete(backendUrl, {
         headers: {
           authorization: `${token}`,
@@ -58,7 +56,6 @@ export const LibraryPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center relative px-4 py-8">
-      {/* Back Button */}
       <button
         onClick={() => navigate(-1)}
         className="absolute top-6 left-6 bg-yellow-500 text-white text-xl h-10 w-10 rounded-full flex items-center justify-center"
@@ -66,7 +63,6 @@ export const LibraryPage = () => {
         ←
       </button>
 
-      {/* Dashboard Container */}
       <div className="bg-white shadow-lg rounded-tl-xl rounded-tr-xl rounded-bl-xl rounded-br-xl w-full max-w-screen-xl h-[80vh] md:w-[70vw] flex flex-col md:flex-row">
         {/* Sidebar */}
         <div className="w-full md:w-1/4 bg-yellow-100 p-4 flex flex-row md:flex-col gap-4 md:gap-4 justify-between lg:justify-start">
@@ -163,21 +159,19 @@ export const DashboardCard = ({
       className="relative bg-white shadow-md rounded-lg p-4 border border-gray-200 hover:shadow-lg transition-shadow duration-300 cursor-pointer"
       onClick={onClick}
     >
-      {/* Render the delete icon only for posts */}
       {onDelete && (
         <FaTrashAlt
           size={15}
           className="absolute top-2 right-2 text-red-500 hover:text-red-600 cursor-pointer"
           onClick={(e) => {
-            e.stopPropagation(); // Prevent triggering the card click
-            onDelete(id); // Call the delete handler
+            e.stopPropagation();
+            onDelete(id);
           }}
         />
       )}
 
       <h3 className="text-lg font-semibold text-gray-800 mb-2">{title}</h3>
 
-      {/* Render content with dangerouslySetInnerHTML */}
       <p
         className="text-gray-600 text-sm overflow-hidden text-ellipsis whitespace-nowrap"
         dangerouslySetInnerHTML={{

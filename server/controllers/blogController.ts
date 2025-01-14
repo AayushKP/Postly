@@ -2,7 +2,6 @@ import { PrismaClient } from "@prisma/client/edge";
 import { withAccelerate } from "@prisma/extension-accelerate";
 import { createPostInput, updatePostInput } from "@kashyaap-tech/medium-common";
 
-// Controller for creating a blog post
 export const createBlog = async (c: any) => {
   const body = await c.req.json();
   const { success } = createPostInput.safeParse(body);
@@ -12,12 +11,9 @@ export const createBlog = async (c: any) => {
       message: "Inputs not correct",
     });
   }
-
-  const authorId = c.req.userId; // Assume userId is available from request context
-
-  // Initialize Prisma Client inside the controller function
+  const authorId = c.req.userId; 
   const prisma = new PrismaClient({
-    datasourceUrl: c.env.DATABASE_URL, // Access environment variable for DB URL
+    datasourceUrl: c.env.DATABASE_URL, 
   }).$extends(withAccelerate());
 
   try {
@@ -56,7 +52,7 @@ export const updateBlog = async (c: any) => {
   }
 
   const prisma = new PrismaClient({
-    datasourceUrl: c.env.DATABASE_URL, // Access environment variable for DB URL
+    datasourceUrl: c.env.DATABASE_URL, 
   }).$extends(withAccelerate());
 
   try {
@@ -67,8 +63,8 @@ export const updateBlog = async (c: any) => {
       data: {
         title: body.title,
         content: body.content,
-        image: body.image || undefined, // Optional image field
-        published: body.published !== undefined ? body.published : undefined, // Optional published field
+        image: body.image || undefined,
+        published: body.published !== undefined ? body.published : undefined,
       },
     });
 
@@ -81,15 +77,13 @@ export const updateBlog = async (c: any) => {
       message: "Error updating blog post",
     });
   } finally {
-    await prisma.$disconnect(); // Disconnect Prisma Client after request is done
+    await prisma.$disconnect(); 
   }
 };
 
-// Controller for fetching all blog posts
 export const getAllBlogs = async (c: any) => {
-  // Initialize Prisma Client inside the controller function
   const prisma = new PrismaClient({
-    datasourceUrl: c.env.DATABASE_URL, // Access environment variable for DB URL
+    datasourceUrl: c.env.DATABASE_URL, 
   }).$extends(withAccelerate());
 
   try {
@@ -117,17 +111,15 @@ export const getAllBlogs = async (c: any) => {
       message: "Error fetching blogs",
     });
   } finally {
-    await prisma.$disconnect(); // Disconnect Prisma Client after request is done
+    await prisma.$disconnect();
   }
 };
 
-// Controller for fetching a single blog post by ID
 export const getBlogById = async (c: any) => {
   const id = c.req.param("id");
 
-  // Initialize Prisma Client inside the controller function
   const prisma = new PrismaClient({
-    datasourceUrl: c.env.DATABASE_URL, // Access environment variable for DB URL
+    datasourceUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate());
 
   try {
@@ -161,11 +153,10 @@ export const getBlogById = async (c: any) => {
       message: "Error while fetching blog post",
     });
   } finally {
-    await prisma.$disconnect(); // Disconnect Prisma Client after request is done
+    await prisma.$disconnect();
   }
 };
 
-// Controller for bookmarking a blog
 export const getPopularBlogs = async (c: any) => {
   const prisma = new PrismaClient({
     datasourceUrl: c.env.DATABASE_URL,
@@ -231,15 +222,14 @@ export const getPopularBlogs = async (c: any) => {
 };
 
 export const getBookmarkedBlogs = async (c: any) => {
-  const userId = c.req.userId; // Get userId from request context
+  const userId = c.req.userId;
 
   // Initialize Prisma Client
   const prisma = new PrismaClient({
-    datasourceUrl: c.env.DATABASE_URL, // Access environment variable for DB URL
+    datasourceUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate());
 
   try {
-    // Find all blogs bookmarked by the user
     const bookmarkedBlogs = await prisma.bookmark.findMany({
       where: {
         userId: userId,
@@ -268,7 +258,6 @@ export const getBookmarkedBlogs = async (c: any) => {
       });
     }
 
-    // Map through the bookmarked blogs and return the blog data
     const blogs = bookmarkedBlogs.map((bookmark) => bookmark.blog);
 
     return c.json({
@@ -280,14 +269,13 @@ export const getBookmarkedBlogs = async (c: any) => {
       message: "Error fetching bookmarked blogs",
     });
   } finally {
-    await prisma.$disconnect(); // Disconnect Prisma Client
+    await prisma.$disconnect();
   }
 };
 
 export const getAuthorBlogs = async (c: any) => {
-  const { authorId } = c.req.query(); // Get authorId from query params
+  const { authorId } = c.req.query();
 
-  // Ensure authorId is a number
   const parsedAuthorId = Number(authorId);
 
   if (isNaN(parsedAuthorId)) {
@@ -296,19 +284,17 @@ export const getAuthorBlogs = async (c: any) => {
     });
   }
 
-  // Initialize Prisma Client
   const prisma = new PrismaClient({
-    datasourceUrl: c.env.DATABASE_URL, // Access environment variable for DB URL
+    datasourceUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate());
 
   try {
-    // Find blogs by the parsed authorId
     const authorBlogs = await prisma.blog.findMany({
       where: {
-        authorId: parsedAuthorId, // Use parsed number here
+        authorId: parsedAuthorId,
       },
       orderBy: {
-        createdAt: "desc", // Order by creation date (latest first)
+        createdAt: "desc",
       },
       take: 2, // Limit to 2 posts
       select: {
@@ -341,7 +327,7 @@ export const getAuthorBlogs = async (c: any) => {
       message: "Error fetching author's blogs",
     });
   } finally {
-    await prisma.$disconnect(); // Disconnect Prisma Client after request is done
+    await prisma.$disconnect();
   }
 };
 
@@ -349,13 +335,11 @@ export const bookmarkBlog = async (c: any) => {
   const { blogId } = await c.req.json();
   const userId = c.req.userId;
 
-  // Initialize Prisma Client
   const prisma = new PrismaClient({
     datasourceUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate());
 
   try {
-    // Check if the blog is already bookmarked by the user
     const existingBookmark = await prisma.bookmark.findFirst({
       where: {
         userId,
@@ -364,7 +348,6 @@ export const bookmarkBlog = async (c: any) => {
     });
 
     if (existingBookmark) {
-      // If already bookmarked, remove the bookmark
       await prisma.bookmark.delete({
         where: {
           userId_blogId: {
@@ -378,7 +361,6 @@ export const bookmarkBlog = async (c: any) => {
         message: "Blog removed from bookmarks",
       });
     } else {
-      // If not bookmarked, add the bookmark
       await prisma.bookmark.create({
         data: {
           userId,
@@ -398,20 +380,19 @@ export const bookmarkBlog = async (c: any) => {
       message: "Error handling bookmark operation",
     });
   } finally {
-    await prisma.$disconnect(); // Disconnect Prisma Client after use
+    await prisma.$disconnect();
   }
 };
 
 export const deleteBlog = async (c: any) => {
-  const id = c.req.param("id"); // Assume blog ID is provided as a route parameter
+  const id = c.req.param("id");
 
   // Initialize Prisma Client
   const prisma = new PrismaClient({
-    datasourceUrl: c.env.DATABASE_URL, // Access environment variable for DB URL
+    datasourceUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate());
 
   try {
-    // Attempt to delete the blog by ID
     await prisma.blog.delete({
       where: {
         id: Number(id),
@@ -422,9 +403,7 @@ export const deleteBlog = async (c: any) => {
       message: "Blog deleted successfully",
     });
   } catch (error: any) {
-    // Handle errors (e.g., blog not found or database issues)
     if (error.code === "P2025") {
-      // Specific error code for "Record not found"
       c.status(404);
       return c.json({
         message: "Blog not found",
@@ -436,6 +415,6 @@ export const deleteBlog = async (c: any) => {
       message: "Error deleting blog post",
     });
   } finally {
-    await prisma.$disconnect(); // Disconnect Prisma Client
+    await prisma.$disconnect();
   }
 };

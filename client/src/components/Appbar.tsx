@@ -11,7 +11,6 @@ export const Appbar = () => {
 
   const handleLogout = () => {
     try {
-      // Clear token and user info from storage
       localStorage.removeItem("token");
       useUserInfoStore.getState().clearUserInfo();
       navigate("/");
@@ -25,7 +24,6 @@ export const Appbar = () => {
   return (
     <div className="bg-white shadow-md z-50">
       <div className="flex justify-between items-center px-6 lg:px-32 py-4">
-        {/* Logo */}
         <Link
           to={"/blogs"}
           className="flex items-center font-bold text-4xl text-yellow-600 hover:text-yellow-500 transition-all"
@@ -33,18 +31,15 @@ export const Appbar = () => {
           <div className="font-ysabeau">PostLy</div>
         </Link>
 
-        {/* Actions */}
         <div className="flex items-center space-x-6">
-          {/* New Write Link */}
           <Link
             to={`/publish`}
             className="flex items-center text-black px-4 py-2 rounded-md font-medium text-lg"
           >
-            <FiEdit className="mr-2 text-lg" /> {/* Pencil icon */}
+            <FiEdit className="mr-2 text-lg" />
             <span>Write</span>
           </Link>
 
-          {/* Avatar with Dropdown */}
           <div className="relative">
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}

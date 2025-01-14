@@ -7,7 +7,6 @@ import {
 } from "../controllers/userController";
 import { authMiddleware } from "../middleware/authMiddleware";
 
-// Create the user router
 export const userRouter = new Hono<{
   Bindings: {
     DATABASE_URL: string;

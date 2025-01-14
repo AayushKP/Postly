@@ -4,14 +4,13 @@ import { BlogSkeleton, PopularPostSkeleton } from "../components/BlogSkeleton";
 import { Blog, useBlogs } from "../hooks";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { BACKEND_URL } from "../config"; // Assuming your backend URL is set in config
+import { BACKEND_URL } from "../config";
 
 export const Blogs = () => {
   const { loading, blogs, error } = useBlogs();
   const [popularBlogs, setPopularBlogs] = useState([]);
   const [popularBlogsLoading, setPopularBlogsLoading] = useState(true);
 
-  // Fetch popular blogs from backend on component mount
   useEffect(() => {
     const fetchPopularBlogs = async () => {
       try {
@@ -90,7 +89,6 @@ export const Blogs = () => {
           ))}
         </div>
 
-        {/* Right-side tab hidden on small screens */}
         <div className="hidden lg:block mt-8 lg:w-1/3 space-y-4">
           <div className="bg-white p-4 rounded-lg shadow-md">
             <h2 className="text-xl font-semibold">Popular Posts</h2>
@@ -108,10 +106,12 @@ export const Blogs = () => {
                     }}
                   >
                     <h3 className="font-medium">{blog.title}</h3>
-                    <p className="text-sm text-gray-500">
-                      {truncateContent(blog.content, 30)}{" "}
-                      {/* Truncate after 40 characters */}
-                    </p>
+                    <p
+                      className="text-sm text-gray-500"
+                      dangerouslySetInnerHTML={{
+                        __html: truncateContent(blog.content, 30),
+                      }}
+                    ></p>
                     <p className="text-xs text-gray-400">
                       {blog.author.name || "Anonymous"}
                     </p>
