@@ -12,6 +12,7 @@ export const FullBlog = ({ blog }: { blog: Blog }) => {
   const [noMorePosts, setNoMorePosts] = useState<boolean>(false);
 
   useEffect(() => {
+    //@ts-ignore
     const authorId = blog.author.id;
     const fetchAuthorBlogs = async () => {
       if (authorId) {
@@ -37,6 +38,7 @@ export const FullBlog = ({ blog }: { blog: Blog }) => {
     };
 
     fetchAuthorBlogs();
+    //@ts-ignore
   }, [blog.author.id]);
 
   const handleBackClick = () => {

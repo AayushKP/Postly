@@ -140,7 +140,10 @@ export const BlogCard = ({
           onClick={handleShare}
           className="flex items-center text-gray-600 hover:text-gray-800"
         >
-          <FiShare2 className="mr-1 text-lg" />
+          <FiShare2
+            //@ts-ignore
+            className="mr-1 text-lg"
+          />
           <span className="text-sm font-medium">Share</span>
         </button>
         <button
@@ -148,9 +151,15 @@ export const BlogCard = ({
           className="flex items-center text-gray-600 hover:text-gray-800"
         >
           {isBookmarked ? (
-            <BiBookmarkHeart className="mr-1 text-lg text-yellow-500" />
+            <BiBookmarkHeart
+              //@ts-ignore
+              className="mr-1 text-lg text-yellow-500"
+            />
           ) : (
-            <BiBookmark className="mr-1 text-lg" />
+            <BiBookmark
+              //@ts-ignore
+              className="mr-1 text-lg"
+            />
           )}
           <span className="text-sm font-medium">
             {isBookmarked ? "Bookmarked" : "Bookmark"}

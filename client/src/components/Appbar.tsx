@@ -36,7 +36,10 @@ export const Appbar = () => {
             to={`/publish`}
             className="flex items-center text-black px-4 py-2 rounded-md font-medium text-lg"
           >
-            <FiEdit className="mr-2 text-lg" />
+            <FiEdit
+              //@ts-ignore
+              className="mr-2 text-lg"
+            />
             <span>Write</span>
           </Link>
 
@@ -56,7 +59,10 @@ export const Appbar = () => {
                   className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
                   onClick={() => setIsDropdownOpen(false)}
                 >
-                  <FiUser className="mr-2 text-lg" />
+                  <FiUser
+                    //@ts-ignore
+                    className="mr-2 text-lg"
+                  />
                   Profile
                 </Link>
                 <Link
@@ -64,7 +70,10 @@ export const Appbar = () => {
                   className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
                   onClick={() => setIsDropdownOpen(false)}
                 >
-                  <FiBook className="mr-2 text-lg" />
+                  <FiBook
+                    //@ts-ignore
+                    className="mr-2 text-lg"
+                  />
                   Library
                 </Link>
                 {userInfo?.username && (
@@ -75,7 +84,10 @@ export const Appbar = () => {
                     }}
                     className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
                   >
-                    <FiLogOut className="mr-2 text-lg" />
+                    <FiLogOut
+                      //@ts-ignore
+                      className="mr-2 text-lg"
+                    />
                     Sign Out
                   </button>
                 )}

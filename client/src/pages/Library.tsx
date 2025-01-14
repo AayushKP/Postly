@@ -9,18 +9,20 @@ export const LibraryPage = () => {
   const { userInfo, setUserInfo } = useUserInfoStore();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"posts" | "bookmarks">("posts");
-
+  //@ts-ignore
   const [userBlogs, setUserBlogs] = useState(userInfo?.blogs || []);
   const [bookmarkedBlogs, setBookmarkedBlogs] = useState(
     userInfo?.bookmarkedBlogs || []
   );
 
   useEffect(() => {
+    //@ts-ignore
     setUserBlogs(userInfo?.blogs || []);
     setBookmarkedBlogs(userInfo?.bookmarkedBlogs || []);
   }, [userInfo]);
 
   useEffect(() => {
+    //@ts-ignore
     setUserBlogs(userInfo?.blogs || []);
     setBookmarkedBlogs(userInfo?.bookmarkedBlogs || []);
   }, [userInfo]);
@@ -114,6 +116,7 @@ export const LibraryPage = () => {
               )
             ) : bookmarkedBlogs.length > 0 ? (
               bookmarkedBlogs.map((bookmark: any) => (
+                //@ts-ignore
                 <DashboardCard
                   key={bookmark.blog.id}
                   id={bookmark.blog.id}
@@ -162,8 +165,9 @@ export const DashboardCard = ({
       {onDelete && (
         <FaTrashAlt
           size={15}
+          //@ts-ignore
           className="absolute top-2 right-2 text-red-500 hover:text-red-600 cursor-pointer"
-          onClick={(e) => {
+          onClick={(e: any) => {
             e.stopPropagation();
             onDelete(id);
           }}

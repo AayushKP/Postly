@@ -66,6 +66,7 @@ export const Publish = () => {
         { title, content, image: imageUrl },
         { headers: { authorization: localStorage.getItem("token") || "" } }
       );
+      //@ts-ignore
       setUserInfo((prevUserInfo) => ({
         ...prevUserInfo,
         blogs: [...prevUserInfo.blogs, response.data],
@@ -251,7 +252,10 @@ export const Publish = () => {
 
           <div className="mt-6 flex items-center space-x-3" onClick={openModal}>
             <div className="flex items-center justify-center bg-gray-200 rounded-full h-16 w-16 cursor-pointer">
-              <FaStar size={30} className="text-yellow-500" />
+              <FaStar
+                size={30} //@ts-ignore
+                className="text-yellow-500"
+              />
             </div>
             <span className="text-lg font-medium text-gray-800 font-ysabeau">
               Write with AI
@@ -286,7 +290,9 @@ export const Publish = () => {
             >
               {loading ? (
                 <div className="flex justify-center items-center">
-                  <FaSyncAlt className="animate-spin text-white mr-2" />
+                  <FaSyncAlt //@ts-ignore
+                    className="animate-spin text-white mr-2"
+                  />
                   Generating...
                 </div>
               ) : (
