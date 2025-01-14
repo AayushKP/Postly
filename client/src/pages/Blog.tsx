@@ -4,7 +4,6 @@ import { Spinner } from "../components/Spinner";
 import { useBlog } from "../hooks";
 import { useParams } from "react-router-dom";
 
-// atomFamilies/selectorFamilies
 export const Blog = () => {
   const { id } = useParams();
   const { loading, blog } = useBlog({
@@ -15,7 +14,6 @@ export const Blog = () => {
     return (
       <div>
         <Appbar />
-
         <div className="h-screen flex flex-col justify-center">
           <div className="flex justify-center">
             <Spinner />
@@ -24,6 +22,7 @@ export const Blog = () => {
       </div>
     );
   }
+
   return (
     <div>
       <FullBlog blog={blog} />

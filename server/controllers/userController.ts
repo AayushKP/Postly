@@ -143,3 +143,65 @@ export const getUserInfo = async (c: any) => {
 
 
 
+// Controller to update user info (name, bio, and password)
+export const updateUser = async (c: any) => {
+  const userId = c.req.userId; // Ensure userId is passed or authenticated through JWT
+  const body = await c.req.json();
+
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate());
+
+  const { name, bio, password } = body; // Get new values for name, bio, and password
+
+  // Prepare data for update
+  const updatedData: any = {};
+
+  // If `name` is provided, update it
+  if (name) {
+    updatedData.name = name;
+  }
+
+  // If `bio` is provided (could be null), update it
+  if (bio !== undefined) {
+    updatedData.bio = bio;
+  }
+
+  // If `password` is provided, update it (but only if it's not null)
+  if (password !== undefined && password !== null) {
+    updatedData.password = password;
+  }
+
+  try {
+    // Check if user exists
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      c.status(404);
+      return c.json({
+        message: "User not found",
+      });
+    }
+
+    // Update user in the database with the provided data
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: updatedData,
+    });
+
+    return c.json({
+      message: "User updated successfully",
+      user: updatedUser,
+    });
+  } catch (e) {
+    console.log(e);
+    c.status(400);
+    return c.json({
+      message: "Error updating user info",
+    });
+  } finally {
+    await prisma.$disconnect();
+  }
+};

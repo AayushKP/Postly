@@ -46,22 +46,33 @@ export const ProfilePage = () => {
 
   // Handle saving updated profile information
   const handleSave = async () => {
+    const { fullName, bio, password } = user;
+    // Check if any of the fields have changed
+    const changes = {
+      fullName: fullName !== userInfo?.name ? fullName : undefined,
+      bio: bio !== userInfo?.bio ? bio : undefined,
+      password: password ? password : undefined, // Don't send password if it's empty
+    };
+
+    // If no changes were made, alert the user
+    if (!changes.fullName && !changes.bio && !changes.password) {
+      alert("Nothing changed.");
+      return;
+    }
+
     try {
       const token = localStorage.getItem("token");
       const response = await axios.put(
         `${BACKEND_URL}/api/v1/user/update`,
-        {
-          fullName: user.fullName,
-          bio: user.bio,
-          password: user.password,
-        },
+        changes,
         {
           headers: { authorization: token || "" },
         }
       );
       alert("Profile updated successfully!");
       // Optionally, update store state after saving
-      setUserInfo({ ...userInfo, name: user.fullName, bio: user.bio });
+      //@ts-ignore
+      setUserInfo({ ...userInfo, name: fullName, bio: bio });
     } catch (error) {
       console.error("Error updating profile:", error);
       alert("Failed to update profile.");
@@ -73,15 +84,20 @@ export const ProfilePage = () => {
       {/* Back Button */}
       <button
         onClick={() => navigate(-1)}
-        className="absolute top-6 left-6 bg-yellow-600 text-white p-2 rounded-full hover:bg-yellow-700"
+        className="absolute top-2 left-2 lg:top-6 lg:left-6 bg-yellow-600 text-xl text-white h-10 w-10 text-center rounded-full hover:bg-yellow-700"
       >
         ←
       </button>
 
       {/* Profile Card */}
-      <div className="bg-white shadow-lg rounded-xl w-2/3 h-[70vh] p-6 flex">
+      <div className="bg-white shadow-lg rounded-xl w-11/12 lg:w-2/3 h-auto lg:h-[70vh] p-6 flex flex-col lg:flex-row lg:space-x-6 space-y-6 lg:space-y-0">
+        {/* Right Section - Avatar */}
+        <div className="w-full lg:w-1/3 flex items-center justify-center">
+          <Avatar name={user.fullName} size="huge" />
+        </div>
+
         {/* Left Section */}
-        <div className="w-2/3 p-6 space-y-6">
+        <div className="w-full lg:w-2/3 p-6 space-y-6">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">Profile</h2>
           <div className="space-y-4">
             {/* Full Name */}
@@ -145,11 +161,6 @@ export const ProfilePage = () => {
           >
             Save
           </button>
-        </div>
-
-        {/* Right Section - Avatar */}
-        <div className="w-1/3 flex items-center justify-center">
-          <Avatar name={user.fullName} size="xl" />
         </div>
       </div>
     </div>

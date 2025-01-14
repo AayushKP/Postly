@@ -12,6 +12,8 @@
   "dependencies": {
     "@fontsource/quicksand": "^5.1.1",
     "@kashyaap-tech/medium-common": "^1.0.0",
+    "@langchain/core": "^0.3.30",
+    "@langchain/mistralai": "^0.2.0",
     "@tailwindcss/line-clamp": "^0.4.4",
     "@tinymce/tinymce-react": "^5.1.1",
     "axios": "^1.7.9",
@@ -20,7 +22,9 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-icon": "^1.0.0",
+    "react-markdown": "^9.0.3",
     "react-router-dom": "^7.1.0",
+    "remark-gfm": "^4.0.0",
     "zustand": "^5.0.3"
   },
   "devDependencies": {

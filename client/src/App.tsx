@@ -11,6 +11,7 @@ import Home from "./pages/Home";
 import { BACKEND_URL } from "./config";
 import { Spinner } from "./components/Spinner"; // Spinner with Tailwind CSS
 import { ProfilePage } from "./pages/Profile";
+import { LibraryPage } from "./pages/Library";
 
 // Higher-Order Component for Private Routes
 const PrivateRoute = ({
@@ -78,6 +79,10 @@ function App() {
   }, [setUserInfo, clearUserInfo]);
 
   useEffect(() => {
+    console.log(userInfo);
+  }, [userInfo]);
+
+  useEffect(() => {
     if (userInfo) {
       localStorage.setItem("userInfo", JSON.stringify(userInfo));
     } else {
@@ -125,6 +130,14 @@ function App() {
         element={
           <PrivateRoute userInfo={userInfo}>
             <ProfilePage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/library"
+        element={
+          <PrivateRoute userInfo={userInfo}>
+            <LibraryPage />
           </PrivateRoute>
         }
       />

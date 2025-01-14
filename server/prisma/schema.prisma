@@ -27,8 +27,6 @@ model Blog {
   image     String?
   author    User       @relation("UserBlogs", fields: [authorId], references: [id])
   bookmarks Bookmark[]
-
-  
 }
 
 model Bookmark {

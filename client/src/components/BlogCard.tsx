@@ -28,7 +28,7 @@ export const BlogCard = ({
 
   // Check if the blog is bookmarked on mount or userInfo change
   useEffect(() => {
-    if (userInfo) {
+    if (userInfo && userInfo.bookmarkedBlogs) {
       const isAlreadyBookmarked = userInfo.bookmarkedBlogs.some(
         (bookmark) => bookmark.blog.id === id
       );
@@ -104,6 +104,10 @@ export const BlogCard = ({
     }
   };
 
+  // Truncate the content for preview
+  const truncatedContent =
+    content.length > 100 ? content.slice(0, 30) + "..." : content;
+
   return (
     <div className="relative mt-8 mx-auto w-full max-w-screen-sm bg-white rounded-xl shadow-md hover:shadow-xl transform transition-transform duration-300 hover:-translate-y-1">
       <Link to={`/blog/${id}`} className="flex flex-col sm:flex-row">
@@ -114,12 +118,14 @@ export const BlogCard = ({
             <div className="h-1 w-1 mx-2 bg-gray-400 rounded-full"></div>
             <span>{publishedDate}</span>
           </div>
-          <h2 className="text-2xl font-bold text-gray-800 font-quicksand">
+          <h2 className="text-2xl font-bold text-gray-800 font-quicksand truncate">
             {title}
           </h2>
-          <p className="mt-2 text-gray-600 font-quicksand">
-            {content.slice(0, 100) + "..."}
-          </p>
+          {/* Render truncated content */}
+          <p
+            className="mt-2 text-gray-600 font-quicksand overflow-hidden text-ellipsis whitespace-nowrap"
+            dangerouslySetInnerHTML={{ __html: truncatedContent }}
+          />
         </div>
         {image && (
           <div className="w-full sm:w-1/3 h-40 p-6 overflow-hidden">

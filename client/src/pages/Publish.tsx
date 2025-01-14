@@ -1,16 +1,28 @@
 import { useState } from "react";
-import { Appbar } from "../components/Appbar";
 import { Editor } from "@tinymce/tinymce-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { BACKEND_URL } from "../config";
-import { FaBackward, FaTrash } from "react-icons/fa";
+import { FaBackward, FaTrash, FaStar, FaSyncAlt } from "react-icons/fa";
+import { ChatMistralAI } from "@langchain/mistralai";
+import { ChatPromptTemplate } from "@langchain/core/prompts";
 
 export const Publish = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [aiTitle, setAiTitle] = useState("");
+  const [aiContent, setAiContent] = useState("");
   const navigate = useNavigate();
+
+  const apiKey = import.meta.env.VITE_MISTRAL_API_KEY;
+  const model = new ChatMistralAI({
+    model: "mistral-large-latest",
+    temperature: 0,
+    apiKey: apiKey,
+  });
 
   const handleImageUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -45,6 +57,7 @@ export const Publish = () => {
     }
 
     try {
+      // Send the HTML content directly to the backend
       const response = await axios.post(
         `${BACKEND_URL}/api/v1/blog`,
         { title, content, image: imageUrl },
@@ -60,6 +73,94 @@ export const Publish = () => {
     setImageUrl("");
   };
 
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const generateAiContent = async () => {
+    if (!aiTitle) {
+      alert("Please enter a title for your blog.");
+      return;
+    }
+
+    setLoading(true);
+    setAiContent(""); // Clear previous content
+
+    try {
+      const systemTemplate = `Generate a blog on the topic: ${aiTitle}, headings in ALL CAPS, and proper structure. Use special characters like "*" or "=" for emphasis. Avoid HTML tags.`;
+      const promptTemplate = ChatPromptTemplate.fromMessages([
+        ["system", systemTemplate],
+        ["user", "{text}"],
+      ]);
+
+      const promptValue = await promptTemplate.invoke({
+        text: aiTitle,
+      });
+
+      const response: any = await model.invoke(promptValue);
+      console.log(response);
+
+      // Format the Markdown response with proper spacing between headings, subheadings, and paragraphs
+      const formattedContent = formatMarkdownContent(response?.text);
+
+      // Set the content in the editor as HTML to preserve formatting
+      setAiContent(formattedContent);
+      setContent(formattedContent); // Update TinyMCE with HTML content
+      closeModal(); // Close modal after content is generated
+    } catch (error) {
+      setAiContent("Error generating blog content. Please try again.");
+      setContent("Error generating blog content.");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatMarkdownContent = (content: string) => {
+    let formattedContent = content;
+
+    // Convert markdown headings to HTML headings
+    formattedContent = formattedContent.replace(
+      /(#+) (.*?)\n/g,
+      (match, p1, p2) => {
+        const level = p1.length; // Number of "#" determines heading level
+        return `<h${level}>${p2}</h${level}>`;
+      }
+    );
+
+    // Convert bold (**) and italic (*) markdown to HTML
+    formattedContent = formattedContent.replace(
+      /\*\*([^\*]+)\*\*/g,
+      "<strong>$1</strong>"
+    );
+    formattedContent = formattedContent.replace(/\*([^\*]+)\*/g, "<em>$1</em>");
+
+    // Convert unordered list markdown (- or *) to <ul><li>
+    formattedContent = formattedContent.replace(
+      /^[-*] (.*)/gm,
+      "<ul><li>$1</li></ul>"
+    );
+
+    // Convert ordered list markdown (1.) to <ol><li>
+    formattedContent = formattedContent.replace(
+      /^\d+\. (.*)/gm,
+      "<ol><li>$1</li></ol>"
+    );
+
+    // Remove extra line breaks between paragraphs and sections
+    formattedContent = formattedContent.replace(/\n{2,}/g, "\n");
+
+    // Wrap paragraphs in <p> tags and remove excessive breaks
+    formattedContent = formattedContent.replace(/\n/g, "</p>\n<p>");
+    formattedContent = `<p>${formattedContent}</p>`; // Wrap the entire content in <p> tag
+
+    return formattedContent;
+  };
+
   return (
     <div>
       <button
@@ -71,27 +172,39 @@ export const Publish = () => {
 
       <div className="flex justify-center w-full pt-8 px-10 lg:px-32">
         <div className="max-w-screen-lg w-full relative">
-          {/* Title Input */}
-          <input
-            type="text"
-            placeholder="Enter the title..."
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-full text-3xl font-ysabeau lg:text-4xl font-semibold mb-6 px-2 py-2 border-l border-gray-500 focus:outline-none focus:border-gray-500 placeholder-gray-300"
-          />
+          <div className="flex justify-between items-center mb-6">
+            <input
+              type="text"
+              placeholder="Enter the title..."
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full text-3xl font-ysabeau lg:text-4xl font-semibold px-2 py-2 border-l border-gray-500 focus:outline-none focus:border-gray-500 placeholder-gray-300"
+            />
+            <button
+              onClick={handlePublish}
+              className="ml-4 inline-flex items-center px-5 py-2.5 text-sm font-medium text-center text-black font-quicksand bg-yellow-600 rounded-lg focus:ring-4 focus:ring-blue-200 dark:focus:ring-yellow-900 hover:bg-yellow-700"
+            >
+              Publish
+            </button>
+          </div>
 
-          {/* TinyMCE Editor */}
           <Editor
             apiKey={import.meta.env.VITE_TINYMCE_API_KEY}
             value={content}
             onEditorChange={(newContent, editor) => {
-              // Extract plain text using editor.getContent({ format: 'text' })
-              const plainText = editor.getContent({ format: "text" });
-              setContent(plainText);
+              // Get plain text content instead of HTML
+              const plainTextContent = editor.getContent({ format: "text" });
+              setContent(plainTextContent); // Set the plain text content
             }}
             init={{
               height: 450,
               menubar: false,
+              content_style: `
+      body { font-family: 'Quicksand', sans-serif; }
+      h1, h2, h3, h4, h5, h6 { font-weight: bold; }
+      p, ul, ol { font-family: 'Quicksand', sans-serif; }
+      ul, ol { margin-left: 20px; }
+    `,
               plugins: [
                 "advlist autolink lists link image charmap print preview anchor",
                 "searchreplace visualblocks code fullscreen",
@@ -102,7 +215,6 @@ export const Publish = () => {
             }}
           />
 
-          {/* Image Upload */}
           {!imageUrl && (
             <label
               htmlFor="image-upload"
@@ -119,7 +231,6 @@ export const Publish = () => {
             </label>
           )}
 
-          {/* Uploaded Image */}
           {imageUrl && (
             <div className="mt-4 relative">
               <img src={imageUrl} alt="Uploaded" className="max-w-full h-96" />
@@ -132,15 +243,53 @@ export const Publish = () => {
             </div>
           )}
 
-          {/* Publish Button */}
-          <button
-            onClick={handlePublish}
-            className="mt-4 inline-flex items-center px-5 py-2.5 text-sm font-medium text-center text-black font-quicksand bg-yellow-600 rounded-lg focus:ring-4 focus:ring-blue-200 dark:focus:ring-yellow-900 hover:bg-yellow-700"
-          >
-            Publish post
-          </button>
+          <div className="mt-6 flex items-center space-x-3" onClick={openModal}>
+            <div className="flex items-center justify-center bg-gray-200 rounded-full h-16 w-16 cursor-pointer">
+              <FaStar size={30} className="text-yellow-500" />
+            </div>
+            <span className="text-lg font-medium text-gray-800 font-ysabeau">
+              Write with AI
+            </span>
+          </div>
         </div>
       </div>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 backdrop-blur-sm">
+          <div className="bg-white rounded-lg w-[80%] lg:w-[400px] p-4 sm:p-6 relative">
+            <button
+              onClick={closeModal}
+              className="absolute top-2 right-2 text-xl text-gray-600 hover:text-gray-800"
+            >
+              &times;
+            </button>
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+              Write with AI ✨
+            </h2>
+
+            <input
+              type="text"
+              placeholder="Enter title for your blog"
+              value={aiTitle}
+              onChange={(e) => setAiTitle(e.target.value)}
+              className="w-full mb-4 p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+            />
+            <button
+              onClick={generateAiContent}
+              className="w-full py-2 text-white bg-yellow-600 rounded-lg hover:bg-yellow-700"
+            >
+              {loading ? (
+                <div className="flex justify-center items-center">
+                  <FaSyncAlt className="animate-spin text-white mr-2" />
+                  Generating...
+                </div>
+              ) : (
+                "Generate"
+              )}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

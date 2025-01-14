@@ -1,5 +1,10 @@
 import { Hono } from "hono";
-import { signup, signin, getUserInfo } from "../controllers/userController";
+import {
+  signup,
+  signin,
+  getUserInfo,
+  updateUser,
+} from "../controllers/userController";
 import { authMiddleware } from "../middleware/authMiddleware";
 
 // Create the user router
@@ -13,5 +18,6 @@ export const userRouter = new Hono<{
 userRouter.post("/signup", signup);
 userRouter.post("/signin", signin);
 userRouter.get("/user-info", authMiddleware, getUserInfo);
+userRouter.put("/update", authMiddleware, updateUser);
 
 export default userRouter;

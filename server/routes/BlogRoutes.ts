@@ -23,9 +23,11 @@ blogRouter.use("/*", authMiddleware);
 
 // Define routes with controller functions
 blogRouter.post("/", blogController.createBlog); // Route to create a blog post
-blogRouter.put("/:id", blogController.updateBlog); // Route to update a blog post by ID
+blogRouter.delete("/delete/:id", blogController.deleteBlog); // Route to fetch bookmarked blogs for the user
 blogRouter.get("/bulk", blogController.getAllBlogs); // Route to fetch all blog posts
 blogRouter.get("/:id", blogController.getBlogById); // Route to fetch a single blog post by ID
-blogRouter.get("/popularBlogs", blogController.getPopularBlogs); // Route to bookmark/unbookmark a blog post
-blogRouter.post("/bookmark", blogController.bookmarkBlog); // Route to bookmark/unbookmark a blog post
-blogRouter.get("/bookmarks", blogController.getBookmarkedBlogs); // Route to fetch bookmarked blogs for the user
+blogRouter.get("/blogs/popular", blogController.getPopularBlogs); // Route to bookmark/unbookmark a blog post
+blogRouter.post("/blogs/bookmark", blogController.bookmarkBlog); // Route to bookmark/unbookmark a blog post
+blogRouter.get("/blogs/bookmarks", blogController.getBookmarkedBlogs); // Route to fetch bookmarked blogs for the user
+blogRouter.get('/blogs/author', blogController.getAuthorBlogs);  // Endpoint for fetching author's blogs
+
