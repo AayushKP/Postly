@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 function Home() {
-  const [isLightMode, setIsLightMode] = useState<boolean>(true);
+  const [isLightMode, setIsLightMode] = useState<boolean>(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const navigate = useNavigate();
 
