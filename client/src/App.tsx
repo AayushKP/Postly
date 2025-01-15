@@ -13,7 +13,6 @@ import { Spinner } from "./components/Spinner"; // Spinner with Tailwind CSS
 import { ProfilePage } from "./pages/Profile";
 import { LibraryPage } from "./pages/Library";
 
-// Higher-Order Component for Private Routes
 const PrivateRoute = ({
   userInfo,
   children,
@@ -24,7 +23,6 @@ const PrivateRoute = ({
   return userInfo ? children : <Navigate to="/signin" replace />;
 };
 
-// Higher-Order Component for Auth Routes
 const AuthRoute = ({
   userInfo,
   children,
@@ -37,7 +35,6 @@ const AuthRoute = ({
 
 function App() {
   const { userInfo, setUserInfo, clearUserInfo } = useUserInfoStore();
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

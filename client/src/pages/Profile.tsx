@@ -62,15 +62,10 @@ export const ProfilePage = () => {
 
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.put(
-        `${BACKEND_URL}/api/v1/user/update`,
-        changes,
-        {
-          headers: { authorization: token || "" },
-        }
-      );
-      alert("Profile updated successfully!");
-      // Optionally, update store state after saving
+       await axios.put(`${BACKEND_URL}/api/v1/user/update`, changes, {
+         headers: { authorization: token || "" },
+       });
+       alert("Profile updated successfully!");
       //@ts-ignore
       setUserInfo({ ...userInfo, name: fullName, bio: bio });
     } catch (error) {
