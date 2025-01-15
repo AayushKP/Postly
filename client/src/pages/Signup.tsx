@@ -111,6 +111,7 @@ export const Signup = () => {
               type="text"
               name="name"
               id="name"
+              placeholder="Enter your name"
               value={inputs.name}
               onChange={(e) => setInputs({ ...inputs, name: e.target.value })}
               className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 ${
@@ -159,6 +160,7 @@ export const Signup = () => {
             <input
               type="password"
               name="password"
+              placeholder="Enter your password"
               id="password"
               value={inputs.password}
               onChange={(e) =>

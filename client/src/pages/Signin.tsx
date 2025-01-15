@@ -107,7 +107,7 @@ export const Signin = () => {
               type="text"
               name="username"
               id="username"
-              placeholder="Entr your email"
+              placeholder="Enter your email"
               value={inputs.username}
               onChange={(e) =>
                 setInputs({ ...inputs, username: e.target.value })
@@ -133,6 +133,7 @@ export const Signin = () => {
               type="password"
               name="password"
               id="password"
+              placeholder="Enter your password"
               value={inputs.password}
               onChange={(e) =>
                 setInputs({ ...inputs, password: e.target.value })
