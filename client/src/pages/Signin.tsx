@@ -10,22 +10,8 @@ export const Signin = () => {
     username: "",
     password: "",
   });
-  const [isLightMode, setIsLightMode] = useState<boolean>(true);
   const navigate = useNavigate();
   const { setUserInfo } = useUserInfoStore();
-
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("theme");
-    setIsLightMode(savedTheme === "light" || savedTheme === null);
-  }, []);
-
-  const handleThemeToggle = () => {
-    setIsLightMode((prevMode) => {
-      const newMode = !prevMode;
-      localStorage.setItem("theme", newMode ? "light" : "dark");
-      return newMode;
-    });
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,16 +69,6 @@ export const Signin = () => {
           >
             Sign In
           </h2>
-          <button
-            onClick={handleThemeToggle}
-            className={`p-3 rounded-full text-sm transition ${
-              isLightMode
-                ? "bg-gray-900 text-white hover:bg-gray-800"
-                : "bg-white text-gray-900 hover:bg-white/80"
-            }`}
-          >
-            {isLightMode ? "🌙" : "☀️"}
-          </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
