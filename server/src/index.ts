@@ -16,7 +16,7 @@ const app = new Hono<{
 app.use(
   "*",
   cors({
-    origin: "http://localhost:5173",
+    origin: "https://postly-delta.vercel.app",
     credentials: true,
   })
 );
