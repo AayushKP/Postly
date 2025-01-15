@@ -6,7 +6,7 @@ import axios from "axios";
 import { BACKEND_URL } from "../config";
 
 export const LibraryPage = () => {
-  const { userInfo, setUserInfo } = useUserInfoStore();
+  const { userInfo } = useUserInfoStore();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"posts" | "bookmarks">("posts");
   //@ts-ignore

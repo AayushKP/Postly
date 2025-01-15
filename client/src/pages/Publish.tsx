@@ -18,7 +18,7 @@ export const Publish = () => {
   const [aiTitle, setAiTitle] = useState("");
   const [aiContent, setAiContent] = useState("");
   const navigate = useNavigate();
-  const { userInfo, setUserInfo } = useUserInfoStore();
+  const { setUserInfo } = useUserInfoStore();
 
   const apiKey = import.meta.env.VITE_MISTRAL_API_KEY;
   const model = new ChatMistralAI({

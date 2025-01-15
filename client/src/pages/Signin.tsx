@@ -12,7 +12,7 @@ export const Signin = () => {
   });
   const [isLightMode, setIsLightMode] = useState<boolean>(true);
   const navigate = useNavigate();
-  const { userInfo, setUserInfo } = useUserInfoStore();
+  const { setUserInfo } = useUserInfoStore();
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
