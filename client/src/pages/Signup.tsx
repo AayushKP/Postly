@@ -11,6 +11,7 @@ export const Signup = () => {
     username: "",
     password: "",
   });
+  //@ts-ignore
   const { userInfo, setUserInfo } = useUserInfoStore();
 
   const [isLightMode, setIsLightMode] = useState<boolean>(true);

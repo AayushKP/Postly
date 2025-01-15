@@ -16,6 +16,7 @@ export const Publish = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [aiTitle, setAiTitle] = useState("");
+  //@ts-ignore
   const [aiContent, setAiContent] = useState("");
   const navigate = useNavigate();
   const { setUserInfo } = useUserInfoStore();
@@ -134,6 +135,7 @@ export const Publish = () => {
     // Convert markdown headings to HTML headings
     formattedContent = formattedContent.replace(
       /(#+) (.*?)\n/g,
+      //@ts-ignore
       (match, p1, p2) => {
         const level = p1.length; // Number of "#" determines heading level
         return `<h${level}>${p2}</h${level}>`;
