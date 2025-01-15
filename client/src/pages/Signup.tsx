@@ -134,6 +134,7 @@ export const Signup = () => {
               type="text"
               name="username"
               id="username"
+              placeholder="Enter your email"
               value={inputs.username}
               onChange={(e) =>
                 setInputs({ ...inputs, username: e.target.value })
