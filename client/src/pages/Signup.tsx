@@ -1,5 +1,5 @@
 import { SignupInput } from "@kashyaap-tech/medium-common";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { BACKEND_URL } from "../config";
 import axios from "axios";
@@ -60,20 +60,10 @@ export const Signup = () => {
   };
 
   return (
-    <div
-      className={`min-h-screen flex justify-center items-center ${
-        isLightMode ? "bg-gray-100 text-gray-900" : "bg-gray-900 text-white"
-      }`}
-    >
+    <div className="min-h-screen flex justify-center items-center bg-gray-100 text-gray-900">
       <div className="w-full max-w-md p-8 rounded-lg shadow-lg">
         <div className="flex justify-between items-center mb-6">
-          <h2
-            className={`text-3xl font-semibold ${
-              isLightMode ? "text-yellow-600" : "text-yellow-500"
-            }`}
-          >
-            Sign Up
-          </h2>
+          <h2 className="text-3xl font-semibold text-yellow-600">Sign Up</h2>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -89,11 +79,7 @@ export const Signup = () => {
               placeholder="Enter your name"
               value={inputs.name}
               onChange={(e) => setInputs({ ...inputs, name: e.target.value })}
-              className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 ${
-                isLightMode
-                  ? "border-gray-300 focus:ring-yellow-500"
-                  : "border-gray-600 focus:ring-yellow-500"
-              }`}
+              className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 border-gray-300 focus:ring-yellow-500"
               required
             />
           </div>
@@ -115,11 +101,7 @@ export const Signup = () => {
               onChange={(e) =>
                 setInputs({ ...inputs, username: e.target.value })
               }
-              className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 ${
-                isLightMode
-                  ? "border-gray-300 focus:ring-yellow-500"
-                  : "border-gray-600 focus:ring-yellow-500"
-              }`}
+              className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 border-gray-300 focus:ring-yellow-500"
               required
             />
           </div>
@@ -141,11 +123,7 @@ export const Signup = () => {
               onChange={(e) =>
                 setInputs({ ...inputs, password: e.target.value })
               }
-              className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 ${
-                isLightMode
-                  ? "border-gray-300 focus:ring-yellow-500"
-                  : "border-gray-600 focus:ring-yellow-500"
-              }`}
+              className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 border-gray-300 focus:ring-yellow-500"
               required
             />
           </div>
@@ -153,11 +131,7 @@ export const Signup = () => {
           {/* Submit Button */}
           <button
             type="submit"
-            className={`w-full py-3 rounded-lg transition ${
-              isLightMode
-                ? "bg-yellow-500 text-gray-900 hover:bg-yellow-600"
-                : "bg-yellow-500 text-gray-900 hover:bg-yellow-600"
-            }`}
+            className="w-full py-3 rounded-lg transition bg-yellow-500 text-gray-900 hover:bg-yellow-600"
           >
             Sign Up
           </button>
@@ -169,22 +143,14 @@ export const Signup = () => {
             Already have an account?{" "}
             <button
               onClick={() => navigate("/signin")}
-              className={`font-medium underline transition ${
-                isLightMode
-                  ? "text-yellow-600 hover:text-yellow-700"
-                  : "text-yellow-500 hover:text-yellow-400"
-              }`}
+              className="font-medium underline transition text-yellow-600 hover:text-yellow-700"
             >
               Sign In
             </button>
           </p>
           <button
             onClick={() => navigate("/")}
-            className={`font-medium underline transition ${
-              isLightMode
-                ? "text-yellow-600 hover:text-yellow-700"
-                : "text-yellow-500 hover:text-yellow-400"
-            }`}
+            className="font-medium underline transition text-yellow-600 hover:text-yellow-700"
           >
             Back to Home
           </button>
