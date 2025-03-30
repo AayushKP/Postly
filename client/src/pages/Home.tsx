@@ -1,23 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import Lottie from "lottie-react";
+import rocketAnimation from "../lottie/rocket.json";
+import useUserInfoStore from "../store/store"; 
 
 function Home() {
-  const [isLightMode, setIsLightMode] = useState<boolean>(false);
+  // Get theme and toggleTheme from the store
+  const { theme, toggleTheme } = useUserInfoStore();
+  const isLightMode = theme === "white";
+
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("isWhite") === "true";
-    setIsLightMode(savedTheme);
-  }, []);
-
-  const toggleTheme = (): void => {
-    setIsLightMode((prevMode) => {
-      const newMode = !prevMode;
-      localStorage.setItem("isWhite", newMode.toString());
-      return newMode;
-    });
-  };
 
   const toggleSidebar = (): void => {
     setIsSidebarOpen((prevState) => !prevState);
@@ -25,16 +18,18 @@ function Home() {
 
   return (
     <div
-      className={`min-h-screen  ${
-        isLightMode ? "bg-white text-gray-900" : "bg-gray-900 text-white"
+      className={`min-h-screen ${
+        isLightMode
+          ? "bg-gradient-to-b from-white to-amber-50 text-gray-900"
+          : "bg-gradient-to-b from-black via-gray-800 to-[#0a1e2e] text-gray-100"
       } font-ysabeau`}
     >
-      <div className="px-10 lg:px-32">
+      <div className="px-6 lg:px-24 xl:px-32">
         <nav className="py-6 flex justify-between items-center">
           <h1
             className={`text-4xl font-bold ${
-              isLightMode ? "text-yellow-600" : "text-yellow-500"
-            } font-ysabeau`}
+              isLightMode ? "text-amber-600" : "text-blue-400"
+            }`}
           >
             Postly
           </h1>
@@ -42,10 +37,9 @@ function Home() {
             <a href="#features" className="hover:opacity-80">
               Features
             </a>
-
             <button
               onClick={() => navigate("/signin")}
-              className="py-2 px-4 rounded-xl text-md text-black text-center bg-yellow-500 hover:bg-yellow-600"
+              className="py-2 px-4 rounded-xl text-md text-black text-center bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 shadow-lg"
               aria-label="Login"
             >
               Login
@@ -55,13 +49,13 @@ function Home() {
               className={`p-3 rounded-full text-sm text-center ${
                 isLightMode
                   ? "bg-gray-900 text-white hover:bg-gray-800"
-                  : "bg-white text-gray-900 hover:bg-white/80"
-              } transition`}
+                  : "bg-blue-900 text-gray-100 hover:bg-blue-800"
+              } transition shadow-md`}
+              aria-label="Toggle Theme"
             >
               {isLightMode ? "🌙" : "☀️"}
             </button>
           </div>
-          {/* Hamburger Menu */}
           <button
             className="md:hidden text-3xl"
             onClick={toggleSidebar}
@@ -71,164 +65,233 @@ function Home() {
           </button>
         </nav>
 
-        {/* Sidebar */}
-        <div
-          className={`fixed top-0 w-64 left-0 h-full bg-gray-800 text-white transform ${
-            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-          } transition-transform duration-300 z-50 md:hidden`}
-        >
-          <button
-            className="text-2xl absolute top-4 right-4 "
-            onClick={toggleSidebar}
-          >
-            ✕
-          </button>
-          <ul className="mt-16 space-y-6 text-center">
-            <li>
-              <a
-                href="#features"
-                className="text-xl hover:opacity-80"
-                onClick={toggleSidebar}
-              >
-                Features
-              </a>
-            </li>
-            <li>
-              <Link to="/signin">
-                <button className="text-xl hover:opacity-80">Login</button>
-              </Link>
-            </li>
+        {/* Mobile Sidebar */}
+        {isSidebarOpen && (
+          <div className="fixed top-0 left-0 w-64 h-full bg-blue-900/90 text-gray-100 z-50 p-6 md:hidden">
+            <button
+              onClick={toggleSidebar}
+              className="text-3xl absolute top-4 right-4"
+              aria-label="Close Sidebar"
+            >
+              ✕
+            </button>
+            <ul className="mt-16 space-y-6">
+              <li>
+                <a
+                  href="#features"
+                  onClick={toggleSidebar}
+                  className="block text-lg hover:opacity-80"
+                >
+                  Features
+                </a>
+              </li>
+              <li>
+                <Link to="/signin" onClick={toggleSidebar}>
+                  <button className="block text-lg hover:opacity-80">
+                    Login
+                  </button>
+                </Link>
+              </li>
+              <li>
+                <button
+                  onClick={() => {
+                    toggleTheme();
+                    toggleSidebar();
+                  }}
+                  className="block text-lg hover:opacity-80"
+                >
+                  {isLightMode ? "🌙 Dark Mode" : "☀️ Light Mode"}
+                </button>
+              </li>
+            </ul>
+          </div>
+        )}
 
-            <li>
-              <button
-                onClick={() => {
-                  toggleTheme();
-                  toggleSidebar();
-                }}
-                className={`p-3 rounded-full text-center w-52 ${
-                  isLightMode
-                    ? "bg-gray-900 text-white hover:bg-gray-500"
-                    : "bg-white text-gray-900 hover:bg-white/80"
-                }`}
-              >
-                {isLightMode ? "🌙 Dark Mode" : "☀️ Light Mode"}
-              </button>
-            </li>
-          </ul>
-        </div>
-
-        <section className="flex flex-col items-center gap-10 justify-center h-3/4 text-center py-12 md:py-24">
-          <div>
-            <h2 className="text-5xl font-bold mb-4">
-              Welcome to Postly : AI-Powered Blogging
+        <section className="flex flex-col md:flex-row items-center justify-between pt-12 pb-24 gap-8">
+          <div className="flex-1 max-w-2xl lg:max-w-3xl">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-amber-600">
+              Welcome to Postly:
+              <br />
+              AI-Powered Blogging
             </h2>
-            <p className="text-xl mb-6">
+            <p className="text-lg md:text-xl mb-8">
               Generate, create, and share blogs effortlessly with the power of
               AI!
             </p>
-            <a
-              href="/signin"
-              className={`px-6 py-3 rounded-lg text-xl transition mb-3 ${
-                isLightMode
-                  ? "bg-yellow-500 text-gray-900 hover:bg-yellow-600"
-                  : "bg-yellow-500 text-gray-900 hover:bg-yellow-600"
-              }`}
-            >
-              Create Your First Post
-            </a>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <a
+                href="/signin"
+                className="px-8 py-3 rounded-xl text-lg bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-gray-900 shadow-lg transition-all transform hover:scale-105"
+              >
+                Create Your First Post
+              </a>
+            </div>
           </div>
-
-          <div id="new-age-blogging" className="text-center">
-            <h3
-              className={`text-3xl font-bold mb-3 ${
-                isLightMode ? "text-yellow-600" : "text-yellow-500"
-              }`}
-            >
-              The New Age of Blogging
-            </h3>
-            <p className="text-md mb-6 font-quicksand">
-              Embrace the future of content creation with AI that empowers you
-              to write smarter, faster, and more creatively than ever before.
-            </p>
+          <div className="flex-1 w-full max-w-xl lg:max-w-2xl mt-12 md:mt-0">
+            <Lottie
+              animationData={rocketAnimation}
+              loop={true}
+              className="w-full h-full"
+            />
           </div>
         </section>
 
-        {/* Features Section */}
         <section
           id="features"
-          className={`py-12 text-center rounded-xl ${
-            isLightMode ? "bg-gray-100 text-gray-900" : "bg-gray-800"
-          }`}
+          className={`py-16 rounded-2xl ${
+            isLightMode
+              ? "bg-white/90 text-gray-900"
+              : "bg-gray-800/90 text-gray-100"
+          } backdrop-blur-sm shadow-2xl`}
         >
-          <h3
-            className={`text-4xl font-bold mb-6 ${
-              isLightMode ? "text-yellow-600" : "text-yellow-500"
-            }`}
-          >
-            Features
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 p-6">
-            <div className="p-8 rounded-lg bg-gray-200 text-gray-800">
-              <h4 className="text-2xl font-semibold mb-4 text-center ">
-                AI Generation
-              </h4>
-              <p className="text-md text-center font-quicksand">
-                Let AI create insightful blog content in minutes. Perfect for
-                busy writers or content creators.
-              </p>
-            </div>
-            <div className="p-8 rounded-lg bg-gray-200 text-gray-800">
-              <h4 className="text-2xl font-semibold mb-4">
-                Customization Options
-              </h4>
-              <p className="text-md text-center font-quicksand">
-                Easily edit and tailor your posts to match your unique style and
-                audience. With a range of formatting options.
-              </p>
-            </div>
-            <div className="p-8 rounded-lg bg-gray-200 text-gray-800">
-              <h4 className="text-2xl font-semibold mb-4">Media Integration</h4>
-              <p className="text-md text-center font-quicksand">
-                Easily integrate relevant images, videos, and infographics into
-                your blog posts to enhance their visual appeal.
-              </p>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h3
+              className={`text-3xl md:text-4xl font-bold mb-12 text-center ${
+                isLightMode ? "text-amber-600" : "text-blue-300"
+              }`}
+            >
+              Powerful Features
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {[
+                {
+                  title: "AI Generation",
+                  content:
+                    "Harness advanced AI algorithms to generate high-quality blog posts in seconds.",
+                  icon: "🤖",
+                  highlights: [
+                    "Fast content creation",
+                    "SEO optimized",
+                    "AI-driven insights",
+                  ],
+                },
+                {
+                  title: "Customization Options",
+                  content:
+                    "Easily personalize your posts with a variety of editing tools and design options.",
+                  icon: "🎨",
+                  highlights: [
+                    "Flexible layouts",
+                    "Custom styling",
+                    "Rich formatting",
+                  ],
+                },
+                {
+                  title: "Media Integration",
+                  content:
+                    "Seamlessly integrate images, videos, and interactive media to enhance your content.",
+                  icon: "📷",
+                  highlights: [
+                    "Image and video support",
+                    "Interactive elements",
+                    "Responsive design",
+                  ],
+                },
+              ].map((feature, index) => (
+                <div
+                  key={index}
+                  className={`group p-8 rounded-2xl transition-all transform hover:-translate-y-2 ${
+                    isLightMode
+                      ? "bg-white shadow-xl hover:shadow-2xl"
+                      : "bg-gray-700/50 hover:bg-gray-700/70"
+                  }`}
+                >
+                  <div className="mb-6">
+                    <div
+                      className={`text-4xl mb-4 ${
+                        isLightMode ? "text-amber-600" : "text-blue-300"
+                      }`}
+                    >
+                      {feature.icon}
+                    </div>
+                    <h4 className="text-2xl font-semibold mb-4">
+                      {feature.title}
+                    </h4>
+                    <p className="text-gray-500 dark:text-gray-300 mb-4">
+                      {feature.content}
+                    </p>
+                    <ul className="space-y-2">
+                      {feature.highlights.map((highlight, hi) => (
+                        <li key={hi} className="flex items-center text-sm">
+                          <svg
+                            className={`w-4 h-4 mr-2 ${
+                              isLightMode ? "text-amber-500" : "text-blue-300"
+                            }`}
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M5 13l4 4L19 7"
+                            />
+                          </svg>
+                          {highlight}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </section>
 
-        <section id="create" className="py-24 text-center">
-          <h3
-            className={`text-4xl font-bold mb-6 ${
-              isLightMode ? "text-yellow-600" : "text-yellow-500"
-            }`}
-          >
-            Ready to Create Your Post?
-          </h3>
-          <p className="text-xl mb-6">
-            Start writing your blog with AI assistance, and let us help you get
-            started!
-          </p>
-          <a
-            href="/signup"
-            className={`px-8 py-4 rounded-lg text-xl transition ${
+        <section className="py-24">
+          <div
+            className={`rounded-2xl p-12 ${
               isLightMode
-                ? "bg-yellow-500 text-gray-900 hover:bg-yellow-600"
-                : "bg-yellow-500 text-gray-900 hover:bg-yellow-600"
-            }`}
+                ? "bg-gradient-to-r from-amber-50 to-amber-100"
+                : "bg-gradient-to-r from-gray-800 to-gray-700"
+            } shadow-xl`}
           >
-            Start Writing
-          </a>
+            <div className="max-w-4xl mx-auto text-center">
+              <h3
+                className={`text-3xl md:text-4xl font-bold mb-6 ${
+                  isLightMode ? "text-amber-600" : "text-blue-300"
+                }`}
+              >
+                Start Your AI Writing Journey
+              </h3>
+              <p className="text-lg md:text-xl mb-8">
+                Join thousands of creators transforming their content creation
+                process
+              </p>
+              <div className="flex flex-col sm:flex-row justify-center gap-4">
+                <a
+                  href="/signup"
+                  className="px-8 py-3 rounded-xl text-lg bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-gray-900 shadow-lg transition-all transform hover:scale-105"
+                >
+                  Start Blogging
+                </a>
+                <a
+                  href="#features"
+                  className={`px-8 py-3 rounded-xl text-lg border-2 ${
+                    isLightMode
+                      ? "border-amber-500 text-amber-600 hover:bg-amber-50"
+                      : "border-blue-300 text-blue-300 hover:bg-gray-800/10"
+                  } transition-colors`}
+                >
+                  See All Features
+                </a>
+              </div>
+            </div>
+          </div>
         </section>
       </div>
-      {/* Footer */}
+
       <footer
-        className={`text-center py-8 ${
+        className={`py-6 ${
           isLightMode
-            ? "bg-gray-100 text-gray-700"
-            : "bg-gray-800 text-gray-400"
-        }`}
+            ? "bg-gray-100/80 text-gray-600"
+            : "bg-gray-900/80 text-gray-300"
+        } backdrop-blur-sm`}
       >
-        <p className="text-lg">&copy; 2025 Postly , All Rights Reserved</p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <p className="text-sm">&copy; 2025 Postly. All rights reserved.</p>
+        </div>
       </footer>
     </div>
   );
