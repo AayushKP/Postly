@@ -13,8 +13,8 @@ interface Blog {
 }
 
 interface UserInfo {
-  id: number; // id is required
-  username: string; // username should always be a string
+  id: number;
+  username: string;
   name: string | null;
   bio: string | null;
   bookmarkedBlogs: { blog: Blog }[];
@@ -24,14 +24,27 @@ interface UserInfoState {
   userInfo: UserInfo | null;
   setUserInfo: (userInfo: UserInfo) => void;
   clearUserInfo: () => void;
+  theme: "white" | "black";
+  setTheme: (theme: "white" | "black") => void;
+  toggleTheme: () => void;
 }
 
 const useUserInfoStore = create<UserInfoState>((set) => ({
   userInfo: null,
   setUserInfo: (userInfo) => set({ userInfo }),
   clearUserInfo: () => set({ userInfo: null }),
+  // Initialize theme from localStorage, defaulting to "black"
+  theme: localStorage.getItem("theme") === "white" ? "white" : "black",
+  setTheme: (theme) => {
+    localStorage.setItem("theme", theme);
+    set({ theme });
+  },
+  toggleTheme: () =>
+    set((state) => {
+      const newTheme = state.theme === "white" ? "black" : "white";
+      localStorage.setItem("theme", newTheme);
+      return { theme: newTheme };
+    }),
 }));
-
-
 
 export default useUserInfoStore;
