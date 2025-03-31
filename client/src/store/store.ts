@@ -33,7 +33,7 @@ const useUserInfoStore = create<UserInfoState>((set) => ({
   userInfo: null,
   setUserInfo: (userInfo) => set({ userInfo }),
   clearUserInfo: () => set({ userInfo: null }),
-  // Initialize theme from localStorage, defaulting to "black"
+  
   theme: localStorage.getItem("theme") === "black" ? "black" : "white",
   setTheme: (theme) => {
     localStorage.setItem("theme", theme);
@@ -43,7 +43,7 @@ const useUserInfoStore = create<UserInfoState>((set) => ({
     set((state) => {
       const newTheme = state.theme === "black" ? "white" : "black";
       localStorage.setItem("theme", newTheme);
-      return { theme: newTheme };
+      return { theme: newTheme }
     }),
 }));
 

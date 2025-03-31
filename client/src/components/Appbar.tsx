@@ -2,10 +2,11 @@ import { useState } from "react";
 import useUserInfoStore from "../store/store";
 import { Avatar } from "./BlogCard";
 import { Link, useNavigate } from "react-router-dom";
-import { FiUser, FiBook, FiLogOut, FiEdit } from "react-icons/fi"; // Changed icon from FiPlus to FiEdit
+import { FiUser, FiBook, FiLogOut, FiEdit } from "react-icons/fi";
 
 export const Appbar = () => {
-  const { userInfo } = useUserInfoStore();
+  const { userInfo, theme } = useUserInfoStore();
+  const isLightMode = theme === "white";
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -22,11 +23,21 @@ export const Appbar = () => {
   };
 
   return (
-    <div className="bg-white shadow-md z-50">
+    <div
+      className={`shadow-md z-50 ${
+        isLightMode
+          ? "bg-white"
+          : "bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900"
+      }`}
+    >
       <div className="flex justify-between items-center px-6 lg:px-32 py-4">
         <Link
           to={"/blogs"}
-          className="flex items-center font-bold text-4xl text-yellow-600 hover:text-yellow-500 transition-all"
+          className={`flex items-center font-bold text-4xl ${
+            isLightMode
+              ? "text-yellow-600 hover:text-yellow-500"
+              : "text-blue-400 hover:text-blue-300"
+          } transition-all`}
         >
           <div className="font-ysabeau">PostLy</div>
         </Link>
@@ -34,12 +45,13 @@ export const Appbar = () => {
         <div className="flex items-center space-x-6">
           <Link
             to={`/publish`}
-            className="flex items-center text-black px-4 py-2 rounded-md font-medium text-lg"
+            className={`flex items-center ${
+              isLightMode
+                ? "text-black hover:text-gray-700"
+                : "text-gray-100 hover:text-gray-300"
+            } px-4 py-2 rounded-md font-medium text-lg transition-colors`}
           >
-            <FiEdit
-              //@ts-ignore
-              className="mr-2 text-lg"
-            />
+            <FiEdit className="mr-2 text-lg" />
             <span>Write</span>
           </Link>
 
@@ -47,33 +59,41 @@ export const Appbar = () => {
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               className="focus:outline-none"
+              aria-label="User menu"
             >
               <Avatar size="big" name={userInfo?.username || "Guest"} />
             </button>
 
-            {/* Dropdown Menu */}
             {isDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg py-2 z-50 border border-gray-200">
+              <div
+                className={`absolute right-0 mt-2 w-48 ${
+                  isLightMode ? "bg-white" : "bg-gray-800"
+                } shadow-lg rounded-lg py-2 z-50 border ${
+                  isLightMode ? "border-gray-200" : "border-gray-700"
+                }`}
+              >
                 <Link
                   to="/profile"
-                  className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                  className={`flex items-center px-4 py-2 text-sm ${
+                    isLightMode
+                      ? "text-gray-700 hover:bg-gray-100"
+                      : "text-gray-200 hover:bg-gray-700"
+                  } rounded-md transition-colors`}
                   onClick={() => setIsDropdownOpen(false)}
                 >
-                  <FiUser
-                    //@ts-ignore
-                    className="mr-2 text-lg"
-                  />
+                  <FiUser className="mr-2 text-lg" />
                   Profile
                 </Link>
                 <Link
                   to="/library"
-                  className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                  className={`flex items-center px-4 py-2 text-sm ${
+                    isLightMode
+                      ? "text-gray-700 hover:bg-gray-100"
+                      : "text-gray-200 hover:bg-gray-700"
+                  } rounded-md transition-colors`}
                   onClick={() => setIsDropdownOpen(false)}
                 >
-                  <FiBook
-                    //@ts-ignore
-                    className="mr-2 text-lg"
-                  />
+                  <FiBook className="mr-2 text-lg" />
                   Library
                 </Link>
                 {userInfo?.username && (
@@ -82,12 +102,13 @@ export const Appbar = () => {
                       handleLogout();
                       setIsDropdownOpen(false);
                     }}
-                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                    className={`flex items-center w-full px-4 py-2 text-sm ${
+                      isLightMode
+                        ? "text-gray-700 hover:bg-gray-100"
+                        : "text-gray-200 hover:bg-gray-700"
+                    } rounded-md transition-colors`}
                   >
-                    <FiLogOut
-                      //@ts-ignore
-                      className="mr-2 text-lg"
-                    />
+                    <FiLogOut className="mr-2 text-lg" />
                     Sign Out
                   </button>
                 )}

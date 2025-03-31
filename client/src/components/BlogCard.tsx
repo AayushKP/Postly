@@ -13,6 +13,7 @@ interface BlogCardProps {
   publishedDate: string;
   id: number;
   image?: string;
+  isLightMode?: boolean;
 }
 
 export const BlogCard = ({
@@ -22,6 +23,7 @@ export const BlogCard = ({
   content,
   publishedDate,
   image,
+  isLightMode = true,
 }: BlogCardProps) => {
   const { userInfo, setUserInfo } = useUserInfoStore();
   const [isBookmarked, setIsBookmarked] = useState(false);
@@ -54,7 +56,6 @@ export const BlogCard = ({
           (bookmark) => bookmark.blog.id !== id
         );
         setIsBookmarked(false);
-        alert("Blog removed from bookmarks!");
       } else if (response.data.message === "Blog bookmarked successfully") {
         const newBlog = {
           blog: {
@@ -69,25 +70,18 @@ export const BlogCard = ({
         };
         updatedBookmarkedBlogs.push(newBlog);
         setIsBookmarked(true);
-        alert("Blog added to bookmarks!");
       }
 
-      // Update Zustand store and localStorage
-      updateUserInfo(updatedBookmarkedBlogs);
+      const updatedUserInfo = {
+        ...userInfo,
+        bookmarkedBlogs: updatedBookmarkedBlogs,
+      };
+      //@ts-ignore
+      setUserInfo(updatedUserInfo);
+      localStorage.setItem("userInfo", JSON.stringify(updatedUserInfo));
     } catch (error) {
       console.error("Error bookmarking/unbookmarking:", error);
-      alert("Something went wrong. Please try again.");
     }
-  };
-
-  const updateUserInfo = (updatedBookmarkedBlogs: any[]) => {
-    const updatedUserInfo = {
-      ...userInfo,
-      bookmarkedBlogs: updatedBookmarkedBlogs,
-    };
-    //@ts-ignore
-    setUserInfo(updatedUserInfo);
-    localStorage.setItem("userInfo", JSON.stringify(updatedUserInfo));
   };
 
   const handleShare = () => {
@@ -107,21 +101,38 @@ export const BlogCard = ({
     content.length > 100 ? content.slice(0, 30) + "..." : content;
 
   return (
-    <div className="relative mt-8 mx-auto w-full max-w-screen-sm bg-white rounded-xl shadow-md hover:shadow-xl transform transition-transform duration-300 hover:-translate-y-1">
+    <div
+      className={`relative mt-8 mx-auto w-full max-w-screen-sm ${
+        isLightMode ? "bg-white" : "bg-gray-800"
+      } rounded-xl shadow-md hover:shadow-xl transform transition-all duration-300 hover:-translate-y-1`}
+    >
       <Link to={`/blog/${id}`} className="flex flex-col sm:flex-row">
         <div className="p-6 flex flex-col justify-between gap-3 sm:w-2/3 rounded-t-xl sm:rounded-l-xl sm:rounded-tr-none">
-          <div className="flex items-center text-sm text-gray-600">
+          <div
+            className={`flex items-center text-sm ${
+              isLightMode ? "text-gray-600" : "text-gray-300"
+            }`}
+          >
             <Avatar name={authorName} />
             <span className="ml-2 font-medium font-ysabeau">{authorName}</span>
-            <div className="h-1 w-1 mx-2 bg-gray-400 rounded-full"></div>
+            <div
+              className={`h-1 w-1 mx-2 rounded-full ${
+                isLightMode ? "bg-gray-400" : "bg-gray-500"
+              }`}
+            ></div>
             <span>{publishedDate}</span>
           </div>
-          <h2 className="text-2xl font-bold text-gray-800 font-quicksand truncate">
+          <h2
+            className={`text-2xl font-bold ${
+              isLightMode ? "text-gray-800" : "text-gray-100"
+            } font-quicksand truncate`}
+          >
             {title}
           </h2>
-          {/* Render truncated content */}
           <p
-            className="mt-2 text-gray-600 font-quicksand overflow-hidden text-ellipsis whitespace-nowrap"
+            className={`mt-2 ${
+              isLightMode ? "text-gray-600" : "text-gray-300"
+            } font-quicksand overflow-hidden text-ellipsis whitespace-nowrap`}
             dangerouslySetInnerHTML={{ __html: truncatedContent }}
           />
         </div>
@@ -135,31 +146,34 @@ export const BlogCard = ({
           </div>
         )}
       </Link>
-      <div className="px-6 py-4 flex items-center justify-between bg-white rounded-b-xl">
+      <div
+        className={`px-6 py-4 flex items-center justify-between ${
+          isLightMode ? "bg-white" : "bg-gray-800"
+        } rounded-b-xl`}
+      >
         <button
           onClick={handleShare}
-          className="flex items-center text-gray-600 hover:text-gray-800"
+          className={`flex items-center ${
+            isLightMode
+              ? "text-gray-600 hover:text-gray-800"
+              : "text-gray-300 hover:text-gray-100"
+          } transition-colors`}
         >
-          <FiShare2
-            //@ts-ignore
-            className="mr-1 text-lg"
-          />
+          <FiShare2 className="mr-1 text-lg" />
           <span className="text-sm font-medium">Share</span>
         </button>
         <button
           onClick={handleBookmark}
-          className="flex items-center text-gray-600 hover:text-gray-800"
+          className={`flex items-center ${
+            isLightMode
+              ? "text-gray-600 hover:text-gray-800"
+              : "text-gray-300 hover:text-gray-100"
+          } transition-colors`}
         >
           {isBookmarked ? (
-            <BiBookmarkHeart
-              //@ts-ignore
-              className="mr-1 text-lg text-yellow-500"
-            />
+            <BiBookmarkHeart className="mr-1 text-lg text-yellow-500" />
           ) : (
-            <BiBookmark
-              //@ts-ignore
-              className="mr-1 text-lg"
-            />
+            <BiBookmark className="mr-1 text-lg" />
           )}
           <span className="text-sm font-medium">
             {isBookmarked ? "Bookmarked" : "Bookmark"}
@@ -203,5 +217,14 @@ export const Avatar = ({
 };
 
 export function Circle() {
-  return <div className="h-1 w-1 rounded-full bg-slate-500"></div>;
+  const { theme } = useUserInfoStore();
+  const isLightMode = theme === "white";
+
+  return (
+    <div
+      className={`h-1 w-1 rounded-full ${
+        isLightMode ? "bg-slate-500" : "bg-gray-400"
+      }`}
+    ></div>
+  );
 }
