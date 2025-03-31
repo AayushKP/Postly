@@ -2,14 +2,13 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { BACKEND_URL } from "../config";
-import { Avatar } from "../components/BlogCard"; // Import Avatar component
+import { Avatar } from "../components/BlogCard"; 
 import useUserInfoStore from "../store/store";
 
 export const ProfilePage = () => {
   const navigate = useNavigate();
   const { userInfo, setUserInfo } = useUserInfoStore();
 
-  // Create a local state to store the editable fields
   const [user, setUser] = useState({
     fullName: userInfo?.name || "",
     bio: userInfo?.bio || "",
@@ -17,7 +16,6 @@ export const ProfilePage = () => {
     password: "",
   });
 
-  // Fetch user info if not available in store
   useEffect(() => {
     const fetchUserInfo = async () => {
       if (!userInfo) {
@@ -51,10 +49,9 @@ export const ProfilePage = () => {
     const changes = {
       fullName: fullName !== userInfo?.name ? fullName : undefined,
       bio: bio !== userInfo?.bio ? bio : undefined,
-      password: password ? password : undefined, // Don't send password if it's empty
+      password: password ? password : undefined, 
     };
 
-    // If no changes were made, alert the user
     if (!changes.fullName && !changes.bio && !changes.password) {
       alert("Nothing changed.");
       return;
@@ -76,7 +73,6 @@ export const ProfilePage = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      {/* Back Button */}
       <button
         onClick={() => navigate(-1)}
         className="absolute top-2 left-2 lg:top-6 lg:left-6 bg-yellow-600 text-xl text-white h-10 w-10 text-center rounded-full hover:bg-yellow-700"
@@ -84,18 +80,14 @@ export const ProfilePage = () => {
         ←
       </button>
 
-      {/* Profile Card */}
       <div className="bg-white shadow-lg rounded-xl w-11/12 lg:w-2/3 h-auto lg:h-[70vh] p-6 flex flex-col lg:flex-row lg:space-x-6 space-y-6 lg:space-y-0">
-        {/* Right Section - Avatar */}
         <div className="w-full lg:w-1/3 flex items-center justify-center">
           <Avatar name={user.fullName} size="huge" />
         </div>
 
-        {/* Left Section */}
         <div className="w-full lg:w-2/3 p-6 space-y-6">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">Profile</h2>
           <div className="space-y-4">
-            {/* Full Name */}
             <div>
               <label className="block text-gray-600 text-sm mb-1">
                 Full Name
@@ -109,7 +101,6 @@ export const ProfilePage = () => {
               />
             </div>
 
-            {/* Bio */}
             <div>
               <label className="block text-gray-600 text-sm mb-1">Bio</label>
               <input
@@ -121,7 +112,6 @@ export const ProfilePage = () => {
               />
             </div>
 
-            {/* Email */}
             <div>
               <label className="block text-gray-600 text-sm mb-1">Email</label>
               <input
@@ -133,7 +123,6 @@ export const ProfilePage = () => {
               />
             </div>
 
-            {/* Password */}
             <div>
               <label className="block text-gray-600 text-sm mb-1">
                 Password
@@ -149,7 +138,6 @@ export const ProfilePage = () => {
             </div>
           </div>
 
-          {/* Save Button */}
           <button
             onClick={handleSave}
             className="mt-6 w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition"

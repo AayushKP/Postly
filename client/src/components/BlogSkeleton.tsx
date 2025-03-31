@@ -1,5 +1,4 @@
 import { Circle } from "./BlogCard";
-import useUserInfoStore from "../store/store";
 
 export const BlogSkeleton = ({
   isLightMode = true,
