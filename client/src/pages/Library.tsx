@@ -6,7 +6,8 @@ import axios from "axios";
 import { BACKEND_URL } from "../config";
 
 export const LibraryPage = () => {
-  const { userInfo } = useUserInfoStore();
+  const { userInfo, theme, toggleTheme } = useUserInfoStore();
+  const isLightMode = theme === "white";
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"posts" | "bookmarks">("posts");
   //@ts-ignore
@@ -14,12 +15,6 @@ export const LibraryPage = () => {
   const [bookmarkedBlogs, setBookmarkedBlogs] = useState(
     userInfo?.bookmarkedBlogs || []
   );
-
-  useEffect(() => {
-    //@ts-ignore
-    setUserBlogs(userInfo?.blogs || []);
-    setBookmarkedBlogs(userInfo?.bookmarkedBlogs || []);
-  }, [userInfo]);
 
   useEffect(() => {
     //@ts-ignore
@@ -38,7 +33,6 @@ export const LibraryPage = () => {
         },
       });
 
-      // Update the state immutably after deletion
       if (activeTab === "posts") {
         setUserBlogs((prevBlogs: any) =>
           prevBlogs.filter((blog: any) => blog.id !== id)
@@ -57,40 +51,52 @@ export const LibraryPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center relative px-4 py-8">
+    <div
+      className={`h-[100dvh] ${
+        isLightMode ? "bg-gray-100 text-gray-900" : "bg-gray-900 text-gray-100"
+      } flex items-center justify-center relative px-4 py-8`}
+    >
       <button
         onClick={() => navigate(-1)}
-        className="absolute top-6 left-6 bg-yellow-500 text-white text-xl h-10 w-10 rounded-full flex items-center justify-center"
+        className={`absolute top-6 left-6 ${
+          isLightMode ? "bg-amber-500 text-white" : "bg-blue-500 text-gray-900"
+        } text-xl h-10 w-10 rounded-full flex items-center justify-center`}
       >
         ←
       </button>
 
-      <div className="bg-white shadow-lg rounded-tl-xl rounded-tr-xl rounded-bl-xl rounded-br-xl w-full max-w-screen-xl h-[80vh] md:w-[70vw] flex flex-col md:flex-row">
-        {/* Sidebar */}
-        <div className="w-full md:w-1/4 bg-yellow-100 p-4 flex flex-row md:flex-col gap-4 md:gap-4 justify-between lg:justify-start">
+      <div
+        className={`shadow-lg rounded-xl w-full max-w-screen-xl h-[80vh] md:w-[70vw] flex flex-col md:flex-row ${
+          isLightMode ? "bg-white" : "bg-gray-800"
+        }`}
+      >
+        <div
+          className={`w-full md:w-1/4 p-4 flex flex-row md:flex-col gap-4 justify-between lg:justify-start ${
+            isLightMode ? "bg-amber-100" : "bg-gray-700"
+          }`}
+        >
           <button
             onClick={() => setActiveTab("posts")}
-            className={`flex items-center justify-center space-x-0 py-2 px-4 rounded-lg ${
+            className={`flex items-center justify-center py-2 px-4 rounded-lg h-16 w-16 lg:w-full ${
               activeTab === "posts"
-                ? "bg-yellow-400 text-white"
-                : "bg-yellow-100 text-gray-200"
-            } h-16 w-16 lg:w-full`}
+                ? "bg-amber-400 text-white"
+                : "text-gray-500"
+            }`}
           >
             <FaFileAlt size={24} />
           </button>
           <button
             onClick={() => setActiveTab("bookmarks")}
-            className={`flex items-center justify-center space-x-0 py-2 px-4 rounded-lg ${
+            className={`flex items-center justify-center py-2 px-4 rounded-lg h-16 w-16 lg:w-full ${
               activeTab === "bookmarks"
-                ? "bg-yellow-400 text-white"
-                : "bg-yellow-100 text-gray-200"
-            } h-16 w-16 lg:w-full`}
+                ? "bg-amber-400 text-white"
+                : "text-gray-500"
+            }`}
           >
             <FaBookmark size={24} />
           </button>
         </div>
 
-        {/* Main Content */}
         <div className="w-full md:w-3/4 p-6 overflow-y-auto">
           <h2 className="text-xl font-semibold mb-4">
             {activeTab === "posts" ? "Your Posts" : "Bookmarks"}
@@ -115,8 +121,7 @@ export const LibraryPage = () => {
                 </p>
               )
             ) : bookmarkedBlogs.length > 0 ? (
-              bookmarkedBlogs.map((bookmark: any) => (
-                //@ts-ignore
+              bookmarkedBlogs.map((bookmark) => (
                 <DashboardCard
                   key={bookmark.blog.id}
                   id={bookmark.blog.id}
@@ -146,7 +151,7 @@ interface DashboardCardProps {
   content: string;
   createdAt: string;
   onClick: () => void;
-  onDelete: (id: number) => void;
+  onDelete?: (id: number) => void;
 }
 
 export const DashboardCard = ({
@@ -159,34 +164,27 @@ export const DashboardCard = ({
 }: DashboardCardProps) => {
   return (
     <div
-      className="relative bg-white shadow-md rounded-lg p-4 border border-gray-200 hover:shadow-lg transition-shadow duration-300 cursor-pointer"
+      className="relative shadow-md rounded-lg p-4 border transition-shadow duration-300 cursor-pointer"
       onClick={onClick}
     >
       {onDelete && (
         <FaTrashAlt
           size={15}
-          //@ts-ignore
           className="absolute top-2 right-2 text-red-500 hover:text-red-600 cursor-pointer"
-          onClick={(e: any) => {
+          onClick={(e) => {
             e.stopPropagation();
             onDelete(id);
           }}
         />
       )}
-
-      <h3 className="text-lg font-semibold text-gray-800 mb-2">{title}</h3>
-
+      <h3 className="text-lg font-semibold mb-2">{title}</h3>
       <p
-        className="text-gray-600 text-sm overflow-hidden text-ellipsis whitespace-nowrap"
+        className="text-sm overflow-hidden text-ellipsis whitespace-nowrap"
         dangerouslySetInnerHTML={{
-          __html:
-            content && content.length > 100
-              ? `${content.slice(0, 40)}...`
-              : content,
+          __html: content.length > 100 ? `${content.slice(0, 40)}...` : content,
         }}
       />
-
-      <p className="text-gray-500 text-xs mt-4">Created on: {createdAt}</p>
+      <p className="text-xs mt-4">Created on: {createdAt}</p>
     </div>
   );
 };
