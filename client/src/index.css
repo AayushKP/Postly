@@ -5,3 +5,16 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.ql-toolbar.ql-snow {
+  border: none !important;
+  border-bottom: 1px solid #e5e7eb !important;
+}
+
+.dark .ql-toolbar.ql-snow {
+  border-bottom-color: #4b5563 !important;
+}
+
+.ql-container.ql-snow {
+  border: none !important;
+}
