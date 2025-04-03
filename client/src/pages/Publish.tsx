@@ -22,10 +22,11 @@ export const Publish = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [aiTitle, setAiTitle] = useState("");
+  //@ts-ignore
   const [aiContent, setAiContent] = useState("");
   const [imageLoading, setImageLoading] = useState(false);
   const navigate = useNavigate();
-  const { theme, toggleTheme } = useUserInfoStore();
+  const { theme } = useUserInfoStore();
   const isLightMode = theme === "white";
 
   const apiKey = import.meta.env.VITE_MISTRAL_API_KEY;
@@ -123,7 +124,7 @@ export const Publish = () => {
 
   const formatMarkdownContent = (content: string) => {
     let formattedContent = content
-      .replace(/(#+) (.*?)\n/g, (match, p1, p2) => {
+      .replace(/(#+) (.*?)\n/g, (p1, p2) => {
         const level = p1.length;
         return `<h${level}>${p2}</h${level}>`;
       })

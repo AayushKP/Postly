@@ -7,7 +7,7 @@ import useUserInfoStore from "../store/store";
 
 export const ProfilePage = () => {
   const navigate = useNavigate();
-  const { userInfo, setUserInfo, theme, toggleTheme } = useUserInfoStore();
+  const { userInfo, setUserInfo, theme } = useUserInfoStore();
   const isLightMode = theme === "white";
 
   const [user, setUser] = useState({

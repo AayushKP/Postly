@@ -6,7 +6,7 @@ import axios from "axios";
 import { BACKEND_URL } from "../config";
 
 export const LibraryPage = () => {
-  const { userInfo, theme, toggleTheme } = useUserInfoStore();
+  const { userInfo, theme } = useUserInfoStore();
   const isLightMode = theme === "white";
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"posts" | "bookmarks">("posts");
