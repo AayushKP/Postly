@@ -3,32 +3,24 @@ import useUserInfoStore from "../store/store";
 import { Avatar } from "./BlogCard";
 import { Link, useNavigate } from "react-router-dom";
 import { FiUser, FiBook, FiLogOut, FiEdit } from "react-icons/fi";
+import { BsSun, BsMoon } from "react-icons/bs";
 
 export const Appbar = () => {
-  const { userInfo, theme } = useUserInfoStore();
+  const { userInfo, theme, setTheme } = useUserInfoStore();
   const isLightMode = theme === "white";
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const handleLogout = () => {
-    try {
-      localStorage.removeItem("token");
-      useUserInfoStore.getState().clearUserInfo();
-      navigate("/");
-      alert("Logged out successfully!");
-    } catch (error) {
-      console.error("Error logging out:", error);
-      alert("Failed to logout. Please try again.");
-    }
+    localStorage.removeItem("token");
+    useUserInfoStore.getState().clearUserInfo();
+    navigate("/");
+    alert("Logged out successfully!");
   };
 
   return (
     <div
-      className={`shadow-md z-50 ${
-        isLightMode
-          ? "bg-white"
-          : "bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900"
-      }`}
+      className={`shadow-md z-50 ${isLightMode ? "bg-white" : "bg-gray-900"}`}
     >
       <div className="flex justify-between items-center px-6 lg:px-32 py-4">
         <Link
@@ -43,6 +35,17 @@ export const Appbar = () => {
         </Link>
 
         <div className="flex items-center space-x-6">
+          <button
+            onClick={() => setTheme(isLightMode ? "black" : "white")}
+            className="p-2 rounded-md transition-all"
+          >
+            {isLightMode ? (
+              <BsMoon className="text-gray-800 text-2xl" />
+            ) : (
+              <BsSun className="text-yellow-400 text-2xl" />
+            )}
+          </button>
+
           <Link
             to={`/publish`}
             className={`flex items-center ${
@@ -59,7 +62,6 @@ export const Appbar = () => {
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               className="focus:outline-none"
-              aria-label="User menu"
             >
               <Avatar size="big" name={userInfo?.username || "Guest"} />
             </button>
@@ -67,10 +69,10 @@ export const Appbar = () => {
             {isDropdownOpen && (
               <div
                 className={`absolute right-0 mt-2 w-48 ${
-                  isLightMode ? "bg-white" : "bg-gray-800"
-                } shadow-lg rounded-lg py-2 z-50 border ${
-                  isLightMode ? "border-gray-200" : "border-gray-700"
-                }`}
+                  isLightMode
+                    ? "bg-white border-gray-200"
+                    : "bg-gray-800 border-gray-700"
+                } shadow-lg rounded-lg py-2 z-50 border`}
               >
                 <Link
                   to="/profile"
